@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     DISPATCH DESIGN SYSTEM — Bootstrap 5.3 Dark Theme Overrides
+     "Precision Instrument" — Mission Control Aesthetic
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Bootstrap CSS Variable Overrides ── */
+  [data-bs-theme="dark"] {
+    --bs-body-bg: #0B0C0F;
+    --bs-body-color: #E8E9ED;
+    --bs-secondary-bg: #12141A;
+    --bs-tertiary-bg: #1A1D25;
+    --bs-body-font-family: 'Instrument Sans', -apple-system, sans-serif;
+    --bs-border-color: rgba(255, 255, 255, 0.10);
+    --bs-border-color-translucent: rgba(255, 255, 255, 0.06);
+    --bs-link-color: #F5A623;
+    --bs-link-hover-color: #E88A2E;
+    --bs-code-color: #F5A623;
+  }
+
+  [data-bs-theme="light"] {
+    --bs-body-bg: #F5F5F7;
+    --bs-body-color: #1A1D25;
+    --bs-secondary-bg: #EEEEF1;
+    --bs-tertiary-bg: #FFFFFF;
+    --bs-body-font-family: 'Instrument Sans', -apple-system, sans-serif;
+    --bs-link-color: #D4850F;
+    --bs-link-hover-color: #C46D1A;
+    --bs-code-color: #D4850F;
+  }
+
+  :root {
+    /* ── Dispatch Surface Layers (darkest → lightest) ── */
+    --d-surface-000: #0B0C0F;
+    --d-surface-100: #12141A;
+    --d-surface-200: #1A1D25;
+    --d-surface-300: #222630;
+    --d-surface-400: #2C3040;
+    --d-surface-500: #3A3F52;
+
+    /* ── Text Hierarchy ── */
+    --d-text-primary: #E8E9ED;
+    --d-text-secondary: #9498A8;
+    --d-text-tertiary: #5C6178;
+    --d-text-inverse: #0B0C0F;
+
+    /* ── Signal Amber — Primary Accent ── */
+    --d-amber-50: #FFF8ED;
+    --d-amber-100: #FFEACC;
+    --d-amber-200: #FFD699;
+    --d-amber-300: #FFC266;
+    --d-amber-400: #F5A623;
+    --d-amber-500: #E88A2E;
+    --d-amber-600: #C46D1A;
+    --d-amber-700: #8B4D13;
+    --d-amber-glow: rgba(245, 166, 35, 0.12);
+    --d-amber-border: rgba(245, 166, 35, 0.25);
+
+    /* ── HTTP Method Colors ── */
+    --d-method-get: #4ADE80;
+    --d-method-get-bg: rgba(74, 222, 128, 0.12);
+    --d-method-post: #F5A623;
+    --d-method-post-bg: rgba(245, 166, 35, 0.12);
+    --d-method-put: #60A5FA;
+    --d-method-put-bg: rgba(96, 165, 250, 0.12);
+    --d-method-patch: #C084FC;
+    --d-method-patch-bg: rgba(192, 132, 252, 0.12);
+    --d-method-delete: #F87171;
+    --d-method-delete-bg: rgba(248, 113, 113, 0.12);
+    --d-method-head: #94A3B8;
+    --d-method-head-bg: rgba(148, 163, 184, 0.12);
+
+    /* ── Status Code Colors ── */
+    --d-status-2xx: #4ADE80;
+    --d-status-2xx-bg: rgba(74, 222, 128, 0.12);
+    --d-status-3xx: #60A5FA;
+    --d-status-3xx-bg: rgba(96, 165, 250, 0.12);
+    --d-status-4xx: #FBBF24;
+    --d-status-4xx-bg: rgba(251, 191, 36, 0.12);
+    --d-status-5xx: #F87171;
+    --d-status-5xx-bg: rgba(248, 113, 113, 0.12);
+
+    /* ── Typography ── */
+    --d-font-ui: 'Instrument Sans', -apple-system, sans-serif;
+    --d-font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+
+    /* ── Shadows ── */
+    --d-shadow-glow: 0 0 20px var(--d-amber-glow);
+  }
+
+  /* ── Global Overrides ── */
+  body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  .font-mono { font-family: var(--d-font-mono) !important; }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── Dispatch Amber Button ── */
+  .btn-dispatch {
+    --bs-btn-bg: var(--d-amber-500);
+    --bs-btn-border-color: var(--d-amber-500);
+    --bs-btn-hover-bg: var(--d-amber-600);
+    --bs-btn-hover-border-color: var(--d-amber-600);
+    --bs-btn-active-bg: var(--d-amber-700);
+    --bs-btn-active-border-color: var(--d-amber-700);
+    --bs-btn-color: var(--d-text-inverse);
+    --bs-btn-hover-color: var(--d-text-inverse);
+    --bs-btn-active-color: var(--d-text-inverse);
+    font-weight: 600;
+  }
+
+  .btn-outline-dispatch {
+    --bs-btn-color: var(--d-amber-400);
+    --bs-btn-border-color: var(--d-amber-border);
+    --bs-btn-hover-bg: var(--d-amber-glow);
+    --bs-btn-hover-color: var(--d-amber-400);
+    --bs-btn-hover-border-color: var(--d-amber-400);
+    --bs-btn-active-bg: var(--d-amber-500);
+    --bs-btn-active-color: var(--d-text-inverse);
+  }
+
+  /* Send button with gradient + glow */
+  .btn-send {
+    background: linear-gradient(135deg, var(--d-amber-500), var(--d-amber-600));
+    border: none;
+    color: var(--d-text-inverse);
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 12px rgba(232, 138, 46, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    position: relative;
+    overflow: hidden;
+    transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-send::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  }
+  .btn-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(232, 138, 46, 0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    color: var(--d-text-inverse);
+  }
+  .btn-send > * { position: relative; z-index: 1; }
+
+  /* ── Dispatch Form Controls ── */
+  .form-control-dispatch {
+    background-color: var(--d-surface-300);
+    border-color: rgba(255, 255, 255, 0.10);
+    color: var(--d-text-primary);
+    font-family: var(--d-font-mono);
+  }
+  .form-control-dispatch:focus {
+    border-color: var(--d-amber-400);
+    box-shadow: 0 0 0 0.2rem var(--d-amber-glow);
+    background-color: var(--d-surface-300);
+    color: var(--d-text-primary);
+  }
+  .form-control-dispatch::placeholder { color: var(--d-text-tertiary); }
+
+  /* URL bar variant */
+  .form-control-url {
+    background-color: var(--d-surface-200);
+    border-color: rgba(255, 255, 255, 0.16);
+    font-family: var(--d-font-mono);
+    font-size: 0.875rem;
+  }
+  .form-control-url:focus {
+    border-color: var(--d-amber-400);
+    box-shadow: 0 0 0 0.2rem var(--d-amber-glow), 0 4px 12px rgba(0,0,0,0.4);
+    background-color: var(--d-surface-200);
+  }
+
+  /* ── Nav Tabs — Dispatch Style ── */
+  .nav-tabs-dispatch {
+    --bs-nav-tabs-border-color: rgba(255, 255, 255, 0.10);
+    --bs-nav-tabs-link-active-color: var(--d-amber-400);
+    --bs-nav-tabs-link-active-border-color: transparent transparent var(--d-amber-400);
+    --bs-nav-tabs-link-active-bg: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  }
+  .nav-tabs-dispatch .nav-link {
+    color: var(--d-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.5rem 0.875rem;
+    transition: all 120ms ease;
+  }
+  .nav-tabs-dispatch .nav-link:hover { color: var(--d-text-primary); border-color: transparent; }
+  .nav-tabs-dispatch .nav-link.active {
+    color: var(--d-amber-400);
+    border-bottom-color: var(--d-amber-400);
+    font-weight: 600;
+    background: transparent;
+  }
+
+  /* ── HTTP Method Badges ── */
+  .badge-method {
+    font-family: var(--d-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 0.15em 0.5em;
+    border-radius: 0.25rem;
+  }
+  .badge-get { color: var(--d-method-get); background: var(--d-method-get-bg); }
+  .badge-post { color: var(--d-method-post); background: var(--d-method-post-bg); }
+  .badge-put { color: var(--d-method-put); background: var(--d-method-put-bg); }
+  .badge-patch { color: var(--d-method-patch); background: var(--d-method-patch-bg); }
+  .badge-delete { color: var(--d-method-delete); background: var(--d-method-delete-bg); }
+  .badge-head { color: var(--d-method-head); background: var(--d-method-head-bg); }
+
+  /* ── Status Badges ── */
+  .badge-status {
+    font-family: var(--d-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25em 0.75em;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .badge-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .badge-2xx { color: var(--d-status-2xx); background: var(--d-status-2xx-bg); }
+  .badge-2xx::before { background: var(--d-status-2xx); box-shadow: 0 0 6px var(--d-status-2xx); }
+  .badge-3xx { color: var(--d-status-3xx); background: var(--d-status-3xx-bg); }
+  .badge-3xx::before { background: var(--d-status-3xx); box-shadow: 0 0 6px var(--d-status-3xx); }
+  .badge-4xx { color: var(--d-status-4xx); background: var(--d-status-4xx-bg); }
+  .badge-4xx::before { background: var(--d-status-4xx); box-shadow: 0 0 6px var(--d-status-4xx); }
+  .badge-5xx { color: var(--d-status-5xx); background: var(--d-status-5xx-bg); }
+  .badge-5xx::before { background: var(--d-status-5xx); box-shadow: 0 0 6px var(--d-status-5xx); }
+
+  /* ── Tab Count Badges ── */
+  .badge-count {
+    font-size: 0.625rem;
+    font-family: var(--d-font-mono);
+    padding: 0.1em 0.4em;
+    background: var(--d-surface-400);
+    color: var(--d-text-secondary);
+    border-radius: 50rem;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+  }
+  .nav-link.active .badge-count {
+    background: var(--d-amber-glow);
+    color: var(--d-amber-400);
+  }
+
+  /* ── Request Tabs (browser-style) ── */
+  .nav-request-tabs {
+    display: flex;
+    gap: 1px;
+    background: var(--d-surface-000);
+    padding: 0.3rem 0.3rem 0;
+    align-items: flex-end;
+  }
+  .nav-request-tabs .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    background: var(--d-surface-100);
+    border-radius: 0.375rem 0.375rem 0 0;
+    font-size: 0.75rem;
+    color: var(--d-text-secondary);
+    border: none;
+    max-width: 200px;
+    position: relative;
+    transition: all 120ms ease;
+  }
+  .nav-request-tabs .nav-link:hover { background: var(--d-surface-200); color: var(--d-text-primary); }
+  .nav-request-tabs .nav-link.active {
+    background: var(--d-surface-200);
+    color: var(--d-text-primary);
+  }
+  .nav-request-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--d-amber-400);
+  }
+  .nav-request-tabs .tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav-request-tabs .btn-close-tab {
+    font-size: 0.875rem;
+    color: var(--d-text-tertiary);
+    padding: 0;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-request-tabs .btn-close-tab:hover { background: var(--d-surface-400); color: var(--d-text-primary); }
+
+  .unsaved-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--d-amber-400); flex-shrink: 0;
+  }
+
+  /* ── Sidebar Tree (list-group based) ── */
+  .list-group-tree .list-group-item {
+    background: transparent;
+    border: none;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--d-text-secondary);
+    border-radius: 0.375rem !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 120ms ease;
+  }
+  .list-group-tree .list-group-item:hover { background: var(--d-surface-300); color: var(--d-text-primary); }
+  .list-group-tree .list-group-item.active {
+    background: var(--d-amber-glow);
+    color: var(--d-text-primary);
+    border-color: transparent;
+  }
+  .list-group-tree .list-group-item.collection { font-weight: 600; }
+  .list-group-tree .list-group-item.folder { font-weight: 500; }
+  .tree-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+  /* ── Environment Pill ── */
+  .badge-env {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.2rem 0.625rem;
+    background: var(--d-surface-300);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 50rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+  .badge-env:hover { border-color: var(--d-amber-border); color: var(--d-text-primary); }
+  .env-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .env-dot-dev { background: #4ADE80; box-shadow: 0 0 6px rgba(74,222,128,0.5); }
+  .env-dot-staging { background: #FBBF24; box-shadow: 0 0 6px rgba(251,191,36,0.5); }
+  .env-dot-prod { background: #F87171; box-shadow: 0 0 6px rgba(248,113,113,0.5); }
+
+  /* ── Variable Highlighting ── */
+  .var-hl {
+    color: var(--d-amber-400);
+    background: var(--d-amber-glow);
+    padding: 0.05em 0.25em;
+    border-radius: 0.2rem;
+    font-family: var(--d-font-mono);
+    font-size: 0.75rem;
+  }
+  .var-unresolved {
+    color: var(--d-status-5xx);
+    background: var(--d-status-5xx-bg);
+    padding: 0.05em 0.25em;
+    border-radius: 0.2rem;
+    font-family: var(--d-font-mono);
+    font-size: 0.75rem;
+    text-decoration: wavy underline;
+    text-decoration-color: var(--d-status-5xx);
+    text-underline-offset: 3px;
+  }
+
+  /* ── Key/Value Editor ── */
+  .kv-table .form-control {
+    font-family: var(--d-font-mono);
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    background: var(--d-surface-300);
+    border-color: rgba(255,255,255,0.06);
+  }
+  .kv-table .form-control:focus {
+    border-color: var(--d-amber-400);
+    box-shadow: none;
+    background: var(--d-surface-300);
+  }
+  .kv-table .form-check-input:checked {
+    background-color: var(--d-amber-500);
+    border-color: var(--d-amber-500);
+  }
+  .kv-table td { vertical-align: middle; padding: 0.25rem 0.25rem; border: none; }
+
+  /* ── Code Block ── */
+  .code-block {
+    background: var(--d-surface-300);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.5rem;
+    padding: 0.875rem 1rem;
+    font-family: var(--d-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.75;
+  }
+  .code-line { display: flex; }
+  .code-ln { width: 28px; text-align: right; color: var(--d-text-tertiary); opacity: 0.5; user-select: none; flex-shrink: 0; padding-right: 12px; }
+  .syn-str { color: var(--d-method-get); }
+  .syn-key { color: var(--d-method-put); }
+  .syn-num { color: var(--d-amber-400); }
+  .syn-punc { color: var(--d-text-tertiary); }
+  .syn-bool { color: var(--d-method-patch); }
+
+  /* ── Context Menu (dropdown override) ── */
+  .dropdown-menu-dispatch {
+    --bs-dropdown-bg: var(--d-surface-200);
+    --bs-dropdown-border-color: rgba(255,255,255,0.10);
+    --bs-dropdown-link-color: var(--d-text-secondary);
+    --bs-dropdown-link-hover-bg: var(--d-surface-300);
+    --bs-dropdown-link-hover-color: var(--d-text-primary);
+    --bs-dropdown-link-active-bg: var(--d-surface-400);
+    --bs-dropdown-padding-y: 0.25rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    font-size: 0.8125rem;
+    min-width: 180px;
+  }
+  .dropdown-menu-dispatch .dropdown-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.4rem 0.75rem; border-radius: 0.375rem; }
+  .dropdown-menu-dispatch .dropdown-item.text-danger:hover { background: var(--d-status-5xx-bg); }
+  .dropdown-shortcut { margin-left: auto; font-size: 0.6875rem; font-family: var(--d-font-mono); color: var(--d-text-tertiary); }
+
+  /* ── Toast Override ── */
+  .toast-dispatch {
+    --bs-toast-bg: var(--d-surface-200);
+    --bs-toast-border-color: rgba(255,255,255,0.10);
+    --bs-toast-color: var(--d-text-primary);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  /* ── Animations ── */
+  @keyframes dispatch-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes dispatch-signal { 0% { box-shadow: 0 0 0 0 var(--d-amber-glow); } 70% { box-shadow: 0 0 0 10px rgba(245,166,35,0); } 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); } }
+  @keyframes dispatch-slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-pulse { animation: dispatch-pulse 2s ease-in-out infinite; }
+  .anim-signal { animation: dispatch-signal 2s infinite; }
+  .anim-slide { animation: dispatch-slide-up 1.5s cubic-bezier(0.16,1,0.3,1) infinite; }
+
+  /* ── Section Styling ── */
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--d-amber-400);
+    font-family: var(--d-font-mono);
+  }
+
+  /* ── Swatch Cards ── */
+  .swatch-card .swatch-preview { height: 56px; border-radius: 0.375rem 0.375rem 0 0; }
+
+  /* ── Logo ── */
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--d-amber-500);
+    border-radius: 0.5rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--d-shadow-glow);
+    position: relative; overflow: hidden;
+  }
+  .logo-icon::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+  }
+  .logo-icon svg { width: 22px; height: 22px; position: relative; z-index: 1; }
+
+  /* ── Spacing Blocks ── */
+  .spacing-block {
+    background: var(--d-amber-glow);
+    border: 1px dashed var(--d-amber-border);
+    border-radius: 0.25rem;
+  }
+
+  /* ── Radius Samples ── */
+  .radius-sample {
+    width: 64px; height: 64px;
+    background: var(--d-surface-300);
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.625rem;
+    font-family: var(--d-font-mono);
+    color: var(--d-text-tertiary);
+  }
+
+  /* ── Mini Layout Diagram ── */
+  .layout-diagram {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 420px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .layout-sidebar {
+    background: var(--d-surface-100);
+    border-right: 1px solid rgba(255,255,255,0.10);
+    display: flex;
+    flex-direction: column;
+  }
+  .layout-main {
+    background: var(--d-surface-200);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Anim squares */
+  .anim-box {
+    width: 48px; height: 48px;
+    border-radius: 0.5rem;
+    background: var(--d-amber-500);
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index:100;">
+  <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" onclick="toggleTheme()" id="themeToggle">
+    <i class="bi bi-circle-half"></i> <span id="themeLabel">Toggle Light</span>
+  </button>
+</div>
+
+<div class="container-lg py-5">
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="mb-5 pb-4 border-bottom position-relative">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--d-text-inverse)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+        </svg>
+      </div>
+      <span class="fs-3 fw-bold" style="letter-spacing:-0.5px;">Dispatch</span>
+    </div>
+    <p class="text-secondary mb-0" style="max-width:560px; line-height:1.6;">
+      Design system for <strong class="text-warning">Dispatch</strong> — a precision HTTP testing tool.
+      Built on the <strong class="text-warning">"Mission Control"</strong> aesthetic: dark layered surfaces,
+      signal amber accents, instrument-grade typography. Powered by <strong>Bootstrap 5.3</strong>.
+    </p>
+    <div style="position:absolute; bottom:-1px; left:0; width:120px; height:2px; background:var(--d-amber-500);"></div>
+  </header>
+
+
+  <!-- ═══════════ 01 COLORS ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">01 — Color System</p>
+    <h2 class="fw-bold mb-1">Surfaces &amp; Signals</h2>
+    <p class="text-secondary small mb-4" style="max-width:640px;">Layered dark surfaces create depth. Signal amber is the sole primary accent. HTTP methods and status codes have dedicated semantic colors.</p>
+
+    <!-- Surface Layers -->
+    <h6 class="text-secondary small fw-semibold mb-2">Surface Layers</h6>
+    <div class="row g-2 mb-4">
+      <div class="col-6 col-sm-4 col-md-2" data-colors='["surface-000","#0B0C0F"],["surface-100","#12141A"],["surface-200","#1A1D25"],["surface-300","#222630"],["surface-400","#2C3040"],["surface-500","#3A3F52"]'>
+        <div class="card swatch-card border-0" style="background:var(--d-surface-200);">
+          <div class="swatch-preview" style="background:#0B0C0F;"></div>
+          <div class="card-body p-2"><div class="small fw-semibold">surface-000</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#0B0C0F</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#12141A;"></div><div class="card-body p-2"><div class="small fw-semibold">surface-100</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#12141A</div></div></div></div>
+      <div class="col-6 col-sm-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#1A1D25;"></div><div class="card-body p-2"><div class="small fw-semibold">surface-200</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#1A1D25</div></div></div></div>
+      <div class="col-6 col-sm-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#222630;"></div><div class="card-body p-2"><div class="small fw-semibold">surface-300</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#222630</div></div></div></div>
+      <div class="col-6 col-sm-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#2C3040;"></div><div class="card-body p-2"><div class="small fw-semibold">surface-400</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#2C3040</div></div></div></div>
+      <div class="col-6 col-sm-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#3A3F52;"></div><div class="card-body p-2"><div class="small fw-semibold">surface-500</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#3A3F52</div></div></div></div>
+    </div>
+
+    <!-- Signal Amber -->
+    <h6 class="text-secondary small fw-semibold mb-2">Signal Amber (Primary Accent)</h6>
+    <div class="row g-2 mb-4">
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#FFF8ED;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-50</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#FFF8ED</div></div></div></div>
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#FFD699;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-200</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#FFD699</div></div></div></div>
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#F5A623;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-400</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#F5A623</div></div></div></div>
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#E88A2E;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-500</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#E88A2E</div></div></div></div>
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#C46D1A;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-600</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#C46D1A</div></div></div></div>
+      <div class="col-4 col-md-2"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#8B4D13;"></div><div class="card-body p-2"><div class="small fw-semibold">amber-700</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#8B4D13</div></div></div></div>
+    </div>
+
+    <!-- Method + Status Colors -->
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h6 class="text-secondary small fw-semibold mb-2">HTTP Method Colors</h6>
+        <div class="row g-2">
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#4ADE80;"></div><div class="card-body p-2"><div class="small fw-semibold">GET</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#4ADE80</div></div></div></div>
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#F5A623;"></div><div class="card-body p-2"><div class="small fw-semibold">POST</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#F5A623</div></div></div></div>
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#60A5FA;"></div><div class="card-body p-2"><div class="small fw-semibold">PUT</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#60A5FA</div></div></div></div>
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#C084FC;"></div><div class="card-body p-2"><div class="small fw-semibold">PATCH</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#C084FC</div></div></div></div>
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#F87171;"></div><div class="card-body p-2"><div class="small fw-semibold">DELETE</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#F87171</div></div></div></div>
+          <div class="col-4"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#94A3B8;"></div><div class="card-body p-2"><div class="small fw-semibold">HEAD/OPT</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#94A3B8</div></div></div></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-secondary small fw-semibold mb-2">Status Code Colors</h6>
+        <div class="row g-2">
+          <div class="col-6"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#4ADE80;"></div><div class="card-body p-2"><div class="small fw-semibold">2xx Success</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#4ADE80</div></div></div></div>
+          <div class="col-6"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#60A5FA;"></div><div class="card-body p-2"><div class="small fw-semibold">3xx Redirect</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#60A5FA</div></div></div></div>
+          <div class="col-6"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#FBBF24;"></div><div class="card-body p-2"><div class="small fw-semibold">4xx Client</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#FBBF24</div></div></div></div>
+          <div class="col-6"><div class="card swatch-card border-0" style="background:var(--d-surface-200);"><div class="swatch-preview" style="background:#F87171;"></div><div class="card-body p-2"><div class="small fw-semibold">5xx Server</div><div class="font-mono text-secondary" style="font-size:0.6875rem;">#F87171</div></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 02 TYPOGRAPHY ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">02 — Typography</p>
+    <h2 class="fw-bold mb-1">Instrument Sans + IBM Plex Mono</h2>
+    <p class="text-secondary small mb-4" style="max-width:640px;">Instrument Sans provides sharp, geometric UI text. IBM Plex Mono brings industrial precision to code, URLs, and data readouts.</p>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Display / H1 — 24px / 700</div>
+            <div class="fs-4 fw-bold mb-2">Request Builder</div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">Instrument Sans &middot; font-weight: 700</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Heading / H2 — 18px / 700</div>
+            <div class="fs-5 fw-bold mb-2">Collection: User Service</div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">Instrument Sans &middot; font-weight: 700</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Code / URL — 14px / 500 (Mono)</div>
+            <div class="font-mono mb-2" style="font-size:0.875rem; font-weight:500;">https://api.example.com/v1/users?page=1</div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">IBM Plex Mono &middot; font-weight: 500</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Data Readout — 12px / 600 (Mono)</div>
+            <div class="font-mono d-flex gap-4 mb-2" style="font-size:0.75rem; font-weight:600;">
+              <span style="color:var(--d-status-2xx);">200 OK</span>
+              <span class="text-secondary">142ms</span>
+              <span class="text-secondary">1.2 KB</span>
+            </div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">IBM Plex Mono &middot; color-coded values</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Label — 11px / 600 / Uppercase</div>
+            <div class="mb-2" style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:var(--d-text-secondary);">Authorization &middot; Headers &middot; Parameters</div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">Instrument Sans &middot; letter-spacing: 1.5px</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-2" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Code / JSON — Syntax Highlighted</div>
+            <div class="font-mono text-secondary mb-2" style="font-size:0.8125rem;">
+              <span class="syn-key">"status"</span><span class="syn-punc">:</span> <span class="syn-str">"active"</span><span class="syn-punc">,</span><br>
+              <span class="syn-key">"count"</span><span class="syn-punc">:</span> <span class="syn-num">42</span>
+            </div>
+            <div class="font-mono text-secondary" style="font-size:0.75rem;">IBM Plex Mono &middot; syntax highlighted</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 03 COMPONENTS ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">03 — Components</p>
+    <h2 class="fw-bold mb-1">UI Building Blocks</h2>
+    <p class="text-secondary small mb-4" style="max-width:640px;">Bootstrap 5.3 components themed with Dispatch design tokens. Every control feels like an instrument panel.</p>
+
+    <!-- Buttons -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Buttons</div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <button class="btn btn-send d-flex align-items-center gap-2">
+            <i class="bi bi-send-fill"></i> <span>Send</span>
+          </button>
+          <button class="btn btn-dispatch">Save Request</button>
+          <button class="btn btn-outline-secondary">Cancel</button>
+          <button class="btn btn-link text-secondary text-decoration-none">Import cURL</button>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <button class="btn btn-sm btn-dispatch">Export</button>
+          <button class="btn btn-sm btn-outline-secondary">Duplicate</button>
+          <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-plus"></i> New</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Method Badges -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">HTTP Method Badges</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge badge-method badge-get">GET</span>
+          <span class="badge badge-method badge-post">POST</span>
+          <span class="badge badge-method badge-put">PUT</span>
+          <span class="badge badge-method badge-patch">PATCH</span>
+          <span class="badge badge-method badge-delete">DEL</span>
+          <span class="badge badge-method badge-head">HEAD</span>
+          <span class="badge badge-method badge-head">OPT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Badges -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Status Code Badges</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge badge-status badge-2xx">200 OK</span>
+          <span class="badge badge-status badge-2xx">201 Created</span>
+          <span class="badge badge-status badge-3xx">301 Redirect</span>
+          <span class="badge badge-status badge-4xx">401 Unauthorized</span>
+          <span class="badge badge-status badge-4xx">404 Not Found</span>
+          <span class="badge badge-status badge-5xx">500 Server Error</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Fields -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Input Fields</div>
+        <div class="d-flex flex-column gap-2" style="max-width:600px;">
+          <input class="form-control form-control-url" value="https://api.example.com/v1/users?page=1" readonly>
+          <input class="form-control form-control-dispatch" placeholder="Header name (e.g., Content-Type)">
+          <div class="input-group">
+            <button class="btn btn-outline-secondary dropdown-toggle font-mono fw-semibold" style="font-size:0.8125rem; color:var(--d-method-post);">POST</button>
+            <input class="form-control form-control-url" placeholder="{{baseUrl}}/api/endpoint">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Panel Tabs (Bootstrap nav-tabs themed)</div>
+        <ul class="nav nav-tabs nav-tabs-dispatch" style="max-width:500px;">
+          <li class="nav-item"><a class="nav-link active" href="#">Params <span class="badge-count">3</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Headers <span class="badge-count">2</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Body</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Auth</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Request Tabs -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Request Tabs (Browser-style)</div>
+        <nav class="nav-request-tabs" style="max-width:700px; border-radius:0.5rem 0.5rem 0 0; border:1px solid rgba(255,255,255,0.06);">
+          <a class="nav-link active" href="#">
+            <span class="badge badge-method badge-get" style="font-size:0.5625rem;">GET</span>
+            <span class="tab-name">Get All Users</span>
+            <button class="btn-close-tab">&times;</button>
+          </a>
+          <a class="nav-link" href="#">
+            <span class="badge badge-method badge-post" style="font-size:0.5625rem;">POST</span>
+            <span class="tab-name">Create User</span>
+            <span class="unsaved-dot"></span>
+            <button class="btn-close-tab">&times;</button>
+          </a>
+          <a class="nav-link" href="#">
+            <span class="badge badge-method badge-delete" style="font-size:0.5625rem;">DEL</span>
+            <span class="tab-name">Delete User</span>
+            <button class="btn-close-tab">&times;</button>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Sidebar Tree -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Sidebar — Collection Tree (list-group based)</div>
+        <div class="p-2 rounded" style="max-width:280px; background:var(--d-surface-100); border:1px solid rgba(255,255,255,0.06);">
+          <div class="list-group list-group-flush list-group-tree">
+            <a class="list-group-item collection" href="#"><i class="bi bi-chevron-down" style="font-size:0.625rem;"></i> <i class="bi bi-folder2" style="color:var(--d-text-tertiary);"></i> <span class="tree-name">User Service</span></a>
+            <div class="ps-3">
+              <a class="list-group-item folder" href="#"><i class="bi bi-chevron-down" style="font-size:0.625rem;"></i> <i class="bi bi-folder2" style="color:var(--d-text-tertiary);"></i> <span class="tree-name">Auth</span></a>
+              <div class="ps-3">
+                <a class="list-group-item active" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post" style="font-size:0.5625rem;">POST</span> <span class="tree-name">Login</span></a>
+                <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post" style="font-size:0.5625rem;">POST</span> <span class="tree-name">Register</span></a>
+              </div>
+              <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-get" style="font-size:0.5625rem;">GET</span> <span class="tree-name">Get All Users</span></a>
+              <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-delete" style="font-size:0.5625rem;">DEL</span> <span class="tree-name">Delete User</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key/Value Editor -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Key/Value Editor (Headers, Params)</div>
+        <table class="table table-borderless kv-table mb-0" style="max-width:600px;">
+          <thead><tr>
+            <th style="width:24px;"></th>
+            <th class="font-mono text-secondary" style="font-size:0.625rem; text-transform:uppercase; letter-spacing:1px; font-weight:500;">Key</th>
+            <th class="font-mono text-secondary" style="font-size:0.625rem; text-transform:uppercase; letter-spacing:1px; font-weight:500;">Value</th>
+            <th style="width:28px;"></th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><input class="form-check-input" type="checkbox" checked></td>
+              <td><input class="form-control" value="Content-Type" readonly></td>
+              <td><input class="form-control" value="application/json" readonly></td>
+              <td><button class="btn btn-sm btn-link text-secondary p-0"><i class="bi bi-x-lg"></i></button></td>
+            </tr>
+            <tr>
+              <td><input class="form-check-input" type="checkbox" checked></td>
+              <td><input class="form-control" value="Authorization" readonly></td>
+              <td><input class="form-control" value="Bearer {{token}}" readonly style="color:var(--d-amber-400);"></td>
+              <td><button class="btn btn-sm btn-link text-secondary p-0"><i class="bi bi-x-lg"></i></button></td>
+            </tr>
+            <tr style="opacity:0.5;">
+              <td><input class="form-check-input" type="checkbox"></td>
+              <td><input class="form-control" value="X-Debug" readonly></td>
+              <td><input class="form-control" value="true" readonly></td>
+              <td><button class="btn btn-sm btn-link text-secondary p-0"><i class="bi bi-x-lg"></i></button></td>
+            </tr>
+            <tr>
+              <td><input class="form-check-input" type="checkbox" checked></td>
+              <td><input class="form-control" placeholder="Key"></td>
+              <td><input class="form-control" placeholder="Value"></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Environment Selectors -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Environment Selector</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge-env"><span class="env-dot env-dot-dev"></span> Development <i class="bi bi-chevron-down" style="font-size:0.625rem;"></i></span>
+          <span class="badge-env"><span class="env-dot env-dot-staging"></span> Staging <i class="bi bi-chevron-down" style="font-size:0.625rem;"></i></span>
+          <span class="badge-env"><span class="env-dot env-dot-prod"></span> Production <i class="bi bi-chevron-down" style="font-size:0.625rem;"></i></span>
+          <span class="badge-env" style="opacity:0.5;">No Environment <i class="bi bi-chevron-down" style="font-size:0.625rem;"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variables -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Variable Interpolation Display</div>
+        <div class="mb-3">
+          <div class="font-mono text-secondary mb-1" style="font-size:0.6875rem;">RESOLVED</div>
+          <div class="font-mono text-secondary" style="font-size:0.8125rem;"><span class="var-hl">{{baseUrl}}</span>/api/users?token=<span class="var-hl">{{token}}</span></div>
+        </div>
+        <div>
+          <div class="font-mono text-secondary mb-1" style="font-size:0.6875rem;">UNRESOLVED</div>
+          <div class="font-mono text-secondary" style="font-size:0.8125rem;"><span class="var-hl">{{baseUrl}}</span>/api/users?key=<span class="var-unresolved">{{apiKey}}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Context Menu (Bootstrap dropdown themed)</div>
+        <div class="dropdown-menu dropdown-menu-dispatch d-block position-static" style="max-width:220px;">
+          <a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Rename <span class="dropdown-shortcut">F2</span></a>
+          <a class="dropdown-item" href="#"><i class="bi bi-copy"></i> Duplicate <span class="dropdown-shortcut">Ctrl+D</span></a>
+          <a class="dropdown-item" href="#"><i class="bi bi-folder-symlink"></i> Move to Folder</a>
+          <hr class="dropdown-divider">
+          <a class="dropdown-item" href="#"><i class="bi bi-code-slash"></i> Generate Code</a>
+          <a class="dropdown-item" href="#"><i class="bi bi-download"></i> Export as JSON</a>
+          <hr class="dropdown-divider">
+          <a class="dropdown-item text-danger" href="#"><i class="bi bi-trash3"></i> Delete <span class="dropdown-shortcut">Del</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Toast Notifications (Bootstrap toast themed)</div>
+        <div class="d-flex flex-column gap-2 align-items-start">
+          <div class="toast toast-dispatch show" role="alert" style="width:auto;">
+            <div class="toast-body d-flex align-items-center gap-2">
+              <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:20px; height:20px; background:var(--d-status-2xx-bg); color:var(--d-status-2xx); font-size:0.6875rem; font-weight:700;">&#10003;</span>
+              Request saved to "User Service / Auth"
+            </div>
+          </div>
+          <div class="toast toast-dispatch show" role="alert" style="width:auto;">
+            <div class="toast-body d-flex align-items-center gap-2">
+              <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:20px; height:20px; background:var(--d-status-5xx-bg); color:var(--d-status-5xx); font-size:0.6875rem; font-weight:700;">!</span>
+              Connection refused — is the server running?
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 04 SPACING ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">04 — Spacing &amp; Radius</p>
+    <h2 class="fw-bold mb-1">Spatial System</h2>
+    <p class="text-secondary small mb-4">4px base grid. Bootstrap's spacing utilities ($spacer) are used throughout.</p>
+
+    <div class="card border-0 mb-3" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Spacing Scale (4px base)</div>
+        <div class="d-flex flex-wrap gap-3 align-items-end">
+          <div class="text-center"><div class="spacing-block" style="width:4px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">4</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:8px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">8</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:12px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">12</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:16px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">16</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:24px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">24</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:32px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">32</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:48px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">48</div></div>
+          <div class="text-center"><div class="spacing-block" style="width:64px; height:32px;"></div><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">64</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0" style="background:var(--d-surface-100);">
+      <div class="card-body">
+        <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Border Radius</div>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="radius-sample" style="border-radius:4px;">4px</div>
+          <div class="radius-sample" style="border-radius:6px;">6px</div>
+          <div class="radius-sample" style="border-radius:8px;">8px</div>
+          <div class="radius-sample" style="border-radius:12px;">12px</div>
+          <div class="radius-sample" style="border-radius:9999px;">pill</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 05 MOTION ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">05 — Motion</p>
+    <h2 class="fw-bold mb-1">Animation Language</h2>
+    <p class="text-secondary small mb-4">Minimal, purposeful motion. Signal pulse for loading, slide-up for toasts, subtle transitions for everything else.</p>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Core Animations</div>
+            <div class="d-flex gap-5">
+              <div class="text-center"><div class="anim-box anim-pulse mx-auto mb-2"></div><div class="font-mono" style="font-size:0.6875rem; color:var(--d-text-tertiary);">pulse</div><div style="font-size:0.625rem; color:var(--d-text-tertiary);">Loading</div></div>
+              <div class="text-center"><div class="anim-box anim-signal mx-auto mb-2"></div><div class="font-mono" style="font-size:0.6875rem; color:var(--d-text-tertiary);">signal</div><div style="font-size:0.625rem; color:var(--d-text-tertiary);">Sending</div></div>
+              <div class="text-center"><div class="anim-box anim-slide mx-auto mb-2"></div><div class="font-mono" style="font-size:0.6875rem; color:var(--d-text-tertiary);">slide-up</div><div style="font-size:0.625rem; color:var(--d-text-tertiary);">Appear</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0" style="background:var(--d-surface-100);">
+          <div class="card-body">
+            <div class="font-mono text-secondary mb-3" style="font-size:0.6875rem; text-transform:uppercase; letter-spacing:1px;">Timing &amp; Easing</div>
+            <div class="row g-3">
+              <div class="col-4"><div class="small fw-semibold mb-1">Fast — 120ms</div><div class="small text-secondary">Hover, focus, toggles</div></div>
+              <div class="col-4"><div class="small fw-semibold mb-1">Normal — 200ms</div><div class="small text-secondary">Panel transitions</div></div>
+              <div class="col-4"><div class="small fw-semibold mb-1">Slow — 350ms</div><div class="small text-secondary">Sidebar, layout</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 06 ICONS ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">06 — Iconography</p>
+    <h2 class="fw-bold mb-1">Bootstrap Icons</h2>
+    <p class="text-secondary small mb-4">Bootstrap Icons set — consistent style, wide coverage. Used via the <code>bi-*</code> class.</p>
+
+    <div class="row g-2">
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-send fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">send</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-floppy fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">save</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-folder2 fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">folder</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-clock-history fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">history</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-search fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">search</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-plus-lg fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">plus</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-code-slash fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">code</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-download fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">download</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-upload fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">upload</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-gear fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">settings</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-trash3 fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">trash</div></div></div>
+      <div class="col-4 col-sm-3 col-md-2 col-lg-1"><div class="card border-0 text-center p-3" style="background:var(--d-surface-200);"><i class="bi bi-clipboard fs-5 text-secondary"></i><div class="font-mono mt-1" style="font-size:0.625rem; color:var(--d-text-tertiary);">copy</div></div></div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════ 07 DESIGN PRINCIPLES ═══════════ -->
+  <section class="mb-5">
+    <p class="section-label mb-2">07 — Design Principles</p>
+    <h2 class="fw-bold mb-1">Guiding Rules</h2>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-6"><div class="card border-0 h-100" style="background:var(--d-surface-100);"><div class="card-body"><div class="fs-4 mb-2" style="filter:grayscale(1);">&#9678;</div><div class="fw-bold mb-1">Instrument, Not Toy</div><div class="small text-secondary" style="line-height:1.6;">Every element should feel purposeful and precise. No decorative flourishes, no playful illustrations. This is a tool for professionals.</div></div></div></div>
+      <div class="col-md-6"><div class="card border-0 h-100" style="background:var(--d-surface-100);"><div class="card-body"><div class="fs-4 mb-2" style="filter:grayscale(1);">&#9681;</div><div class="fw-bold mb-1">Density With Clarity</div><div class="small text-secondary" style="line-height:1.6;">Pack information tightly but keep it scannable. Use typography weight, color hierarchy, and spacing to create structure.</div></div></div></div>
+      <div class="col-md-6"><div class="card border-0 h-100" style="background:var(--d-surface-100);"><div class="card-body"><div class="fs-4 mb-2" style="filter:grayscale(1);">&#9670;</div><div class="fw-bold mb-1">Signal, Not Noise</div><div class="small text-secondary" style="line-height:1.6;">Amber is the one accent color. It means "look here." Overusing it dilutes its power. Most of the UI is neutral.</div></div></div></div>
+      <div class="col-md-6"><div class="card border-0 h-100" style="background:var(--d-surface-100);"><div class="card-body"><div class="fs-4 mb-2" style="filter:grayscale(1);">&#9711;</div><div class="fw-bold mb-1">Zero Configuration</div><div class="small text-secondary" style="line-height:1.6;">Immediately usable. No sign-up, no onboarding wizard. Open it, paste a URL, hit Send.</div></div></div></div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isLight = html.getAttribute('data-bs-theme') === 'light';
+    html.setAttribute('data-bs-theme', isLight ? 'dark' : 'light');
+    document.getElementById('themeLabel').textContent = isLight ? 'Toggle Light' : 'Toggle Dark';
+  }
+</script>
+</body>
+</html>

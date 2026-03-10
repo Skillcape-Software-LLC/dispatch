@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — App Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+  /* ── Bootstrap Dark Theme Override ── */
+  [data-bs-theme="dark"] {
+    --bs-body-bg: #0B0C0F;
+    --bs-body-color: #E8E9ED;
+    --bs-secondary-bg: #12141A;
+    --bs-tertiary-bg: #1A1D25;
+    --bs-body-font-family: 'Instrument Sans', -apple-system, sans-serif;
+    --bs-border-color: rgba(255, 255, 255, 0.10);
+    --bs-border-color-translucent: rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Dispatch Design Tokens ── */
+  :root {
+    --d-surface-000: #0B0C0F;
+    --d-surface-100: #12141A;
+    --d-surface-200: #1A1D25;
+    --d-surface-300: #222630;
+    --d-surface-400: #2C3040;
+    --d-surface-500: #3A3F52;
+    --d-text-primary: #E8E9ED;
+    --d-text-secondary: #9498A8;
+    --d-text-tertiary: #5C6178;
+    --d-text-inverse: #0B0C0F;
+    --d-amber-400: #F5A623;
+    --d-amber-500: #E88A2E;
+    --d-amber-600: #C46D1A;
+    --d-amber-glow: rgba(245, 166, 35, 0.12);
+    --d-amber-border: rgba(245, 166, 35, 0.25);
+    --d-method-get: #4ADE80;
+    --d-method-get-bg: rgba(74, 222, 128, 0.12);
+    --d-method-post: #F5A623;
+    --d-method-post-bg: rgba(245, 166, 35, 0.12);
+    --d-method-put: #60A5FA;
+    --d-method-put-bg: rgba(96, 165, 250, 0.12);
+    --d-method-patch: #C084FC;
+    --d-method-patch-bg: rgba(192, 132, 252, 0.12);
+    --d-method-delete: #F87171;
+    --d-method-delete-bg: rgba(248, 113, 113, 0.12);
+    --d-status-2xx: #4ADE80;
+    --d-status-2xx-bg: rgba(74, 222, 128, 0.12);
+    --d-font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+  }
+
+  body { -webkit-font-smoothing: antialiased; overflow: hidden; height: 100vh; }
+
+  .font-mono { font-family: var(--d-font-mono) !important; }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ APP SHELL ═══ */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: 100vh;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ═══ SIDEBAR ═══ */
+  .app-sidebar {
+    background: var(--d-surface-100);
+    border-right: 1px solid var(--bs-border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Logo */
+  .logo-mark {
+    width: 26px; height: 26px;
+    background: var(--d-amber-500);
+    border-radius: 0.375rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px rgba(245, 166, 35, 0.15);
+    position: relative; flex-shrink: 0;
+  }
+  .logo-mark::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+    border-radius: inherit;
+  }
+  .logo-mark svg { width: 14px; height: 14px; position: relative; z-index: 1; }
+
+  /* Env pill */
+  .badge-env {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.15rem 0.625rem;
+    background: var(--d-surface-300);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 50rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+  .badge-env:hover { border-color: var(--d-amber-border); color: var(--d-text-primary); }
+  .env-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 6px rgba(74,222,128,0.5); flex-shrink: 0; }
+
+  /* Sidebar nav-tabs override */
+  .sidebar-nav .nav-link {
+    flex: 1;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--d-text-tertiary);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.5rem 0;
+    transition: all 120ms ease;
+  }
+  .sidebar-nav .nav-link:hover { color: var(--d-text-secondary); }
+  .sidebar-nav .nav-link.active { color: var(--d-amber-400); border-bottom-color: var(--d-amber-400); background: transparent; }
+
+  /* Search override */
+  .sidebar-search .form-control {
+    background: var(--d-surface-300);
+    border-color: rgba(255,255,255,0.06);
+    font-size: 0.75rem;
+    padding-left: 2rem;
+  }
+  .sidebar-search .form-control:focus { border-color: var(--d-amber-400); box-shadow: none; }
+  .sidebar-search .search-icon { position: absolute; left: 0.625rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--d-text-tertiary); pointer-events: none; }
+
+  /* Tree - list-group */
+  .tree-list .list-group-item {
+    background: transparent;
+    border: none;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--d-text-secondary);
+    border-radius: 0.375rem !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 120ms ease;
+  }
+  .tree-list .list-group-item:hover { background: var(--d-surface-300); color: var(--d-text-primary); }
+  .tree-list .list-group-item.active { background: var(--d-amber-glow); color: var(--d-text-primary); border-color: transparent; }
+  .tree-list .collection { font-weight: 600; }
+  .tree-list .folder { font-weight: 500; }
+  .tree-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+  /* Method badge small */
+  .badge-method { font-family: var(--d-font-mono); font-size: 0.5625rem; font-weight: 600; padding: 0.1em 0.35em; border-radius: 0.2rem; letter-spacing: 0.3px; flex-shrink: 0; }
+  .badge-get { color: var(--d-method-get); background: var(--d-method-get-bg); }
+  .badge-post { color: var(--d-method-post); background: var(--d-method-post-bg); }
+  .badge-put { color: var(--d-method-put); background: var(--d-method-put-bg); }
+  .badge-patch { color: var(--d-method-patch); background: var(--d-method-patch-bg); }
+  .badge-del { color: var(--d-method-delete); background: var(--d-method-delete-bg); }
+
+  /* Sidebar footer buttons */
+  .sidebar-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    font-size: 0.6875rem;
+    color: var(--d-text-secondary);
+  }
+  .sidebar-action:hover { color: var(--d-text-primary); background: var(--d-surface-300); }
+
+  /* ═══ MAIN ═══ */
+  .app-main {
+    display: flex;
+    flex-direction: column;
+    background: var(--d-surface-200);
+    overflow: hidden;
+  }
+
+  /* Request tabs bar */
+  .req-tabs-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 1px;
+    background: var(--d-surface-000);
+    padding: 0.3rem 0.3rem 0;
+    min-height: 38px;
+  }
+  .req-tab-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    background: var(--d-surface-100);
+    border-radius: 0.375rem 0.375rem 0 0;
+    font-size: 0.75rem;
+    color: var(--d-text-secondary);
+    text-decoration: none;
+    max-width: 200px;
+    position: relative;
+    transition: all 120ms ease;
+    border: none;
+    cursor: pointer;
+  }
+  .req-tab-link:hover { background: var(--d-surface-200); color: var(--d-text-primary); }
+  .req-tab-link.active { background: var(--d-surface-200); color: var(--d-text-primary); }
+  .req-tab-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--d-amber-400); }
+  .tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .unsaved-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--d-amber-400); flex-shrink: 0; }
+  .btn-tab-close { font-size: 0.875rem; color: var(--d-text-tertiary); padding: 0; line-height: 1; background: none; border: none; cursor: pointer; border-radius: 0.2rem; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; margin-left: 0.25rem; }
+  .btn-tab-close:hover { background: var(--d-surface-400); color: var(--d-text-primary); }
+  .btn-tab-new { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 0.375rem; background: none; border: none; color: var(--d-text-tertiary); cursor: pointer; margin-left: 0.25rem; }
+  .btn-tab-new:hover { background: var(--d-surface-300); color: var(--d-text-primary); }
+
+  /* URL bar */
+  .url-bar-group .btn-method {
+    background: var(--d-surface-300);
+    border: none;
+    font-family: var(--d-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--d-method-post);
+    padding: 0.5rem 0.75rem;
+  }
+  .url-bar-group .btn-method:hover { background: var(--d-surface-400); }
+  .url-bar-group .form-control {
+    background: var(--d-surface-200);
+    border-color: rgba(255,255,255,0.16);
+    font-family: var(--d-font-mono);
+    font-size: 0.8125rem;
+    color: var(--d-text-primary);
+  }
+  .url-bar-group .form-control:focus {
+    border-color: var(--d-amber-400);
+    box-shadow: 0 0 0 0.2rem var(--d-amber-glow);
+    background: var(--d-surface-200);
+  }
+
+  /* Send button */
+  .btn-send {
+    background: linear-gradient(135deg, var(--d-amber-500), var(--d-amber-600));
+    border: none;
+    color: var(--d-text-inverse);
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 12px rgba(232, 138, 46, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    position: relative;
+    overflow: hidden;
+    transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0.5rem 1.25rem;
+  }
+  .btn-send::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%); }
+  .btn-send:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(232, 138, 46, 0.45), inset 0 1px 0 rgba(255,255,255,0.15); color: var(--d-text-inverse); }
+  .btn-send:active { transform: translateY(0); }
+  .btn-send > * { position: relative; z-index: 1; }
+
+  /* Resolved URL */
+  .url-resolved { font-family: var(--d-font-mono); font-size: 0.6875rem; color: var(--d-text-tertiary); }
+  .url-resolved-label { font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
+  /* Config nav-tabs */
+  .nav-config .nav-link {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.5rem 0.875rem;
+    transition: all 120ms ease;
+  }
+  .nav-config .nav-link:hover { color: var(--d-text-primary); }
+  .nav-config .nav-link.active { color: var(--d-amber-400); border-bottom-color: var(--d-amber-400); font-weight: 600; background: transparent; }
+  .badge-count { font-size: 0.5625rem; font-family: var(--d-font-mono); padding: 0.1em 0.4em; background: var(--d-surface-400); color: var(--d-text-secondary); border-radius: 50rem; vertical-align: middle; margin-left: 0.25rem; }
+  .nav-link.active .badge-count { background: var(--d-amber-glow); color: var(--d-amber-400); }
+
+  /* Body type pills */
+  .body-type-pills .btn { font-size: 0.6875rem; padding: 0.2rem 0.625rem; color: var(--d-text-tertiary); }
+  .body-type-pills .btn:hover { color: var(--d-text-secondary); }
+  .body-type-pills .btn.active { color: var(--d-text-primary); background: var(--d-surface-400); }
+  .body-type-pills .btn-check:checked + .btn { color: var(--d-text-primary); background: var(--d-surface-400); }
+
+  /* Code block */
+  .code-block {
+    background: var(--d-surface-300);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.5rem;
+    padding: 0.875rem 1rem;
+    font-family: var(--d-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.75;
+    min-height: 100%;
+  }
+  .code-line { display: flex; }
+  .code-ln { width: 28px; text-align: right; color: var(--d-text-tertiary); opacity: 0.5; user-select: none; flex-shrink: 0; padding-right: 12px; }
+  .syn-str { color: var(--d-method-get); }
+  .syn-key { color: var(--d-method-put); }
+  .syn-num { color: var(--d-amber-400); }
+  .syn-punc { color: var(--d-text-tertiary); }
+  .syn-bool { color: var(--d-method-patch); }
+
+  /* Resize handle */
+  .resize-handle {
+    height: 5px;
+    background: var(--d-surface-000);
+    cursor: row-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .resize-handle::after { content: ''; width: 36px; height: 3px; background: var(--d-surface-500); border-radius: 2px; transition: background 120ms; }
+  .resize-handle:hover::after { background: var(--d-amber-400); }
+
+  /* Response status badge */
+  .badge-status { font-family: var(--d-font-mono); font-size: 0.6875rem; font-weight: 500; padding: 0.2em 0.75em; border-radius: 50rem; display: inline-flex; align-items: center; gap: 0.375rem; }
+  .badge-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .badge-2xx { color: var(--d-status-2xx); background: var(--d-status-2xx-bg); }
+  .badge-2xx::before { background: var(--d-status-2xx); box-shadow: 0 0 6px var(--d-status-2xx); }
+
+  /* Response meta */
+  .response-meta { font-family: var(--d-font-mono); font-size: 0.6875rem; color: var(--d-text-secondary); }
+
+  /* Action buttons */
+  .btn-action { font-size: 0.6875rem; padding: 0.15rem 0.5rem; color: var(--d-text-secondary); }
+  .btn-action:hover { color: var(--d-text-primary); background: var(--d-surface-300); }
+  .btn-action.active { color: var(--d-text-primary); background: var(--d-surface-400); }
+
+  /* Workspace split */
+  .workspace { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .request-pane { flex: 1; display: flex; flex-direction: column; min-height: 200px; overflow: hidden; }
+  .response-pane { flex: 1; display: flex; flex-direction: column; min-height: 160px; overflow: hidden; }
+  .editor-area { flex: 1; overflow: auto; min-height: 0; }
+  .editor-area::-webkit-scrollbar { width: 5px; }
+  .editor-area::-webkit-scrollbar-track { background: transparent; }
+  .editor-area::-webkit-scrollbar-thumb { background: var(--d-surface-500); border-radius: 4px; }
+  .response-body { flex: 1; overflow: auto; min-height: 0; }
+  .response-body::-webkit-scrollbar { width: 5px; }
+  .response-body::-webkit-scrollbar-track { background: transparent; }
+  .response-body::-webkit-scrollbar-thumb { background: var(--d-surface-500); border-radius: 4px; }
+
+  /* Tree scrollbar */
+  .tree-scroll { flex: 1; overflow-y: auto; }
+  .tree-scroll::-webkit-scrollbar { width: 4px; }
+  .tree-scroll::-webkit-scrollbar-track { background: transparent; }
+  .tree-scroll::-webkit-scrollbar-thumb { background: var(--d-surface-500); border-radius: 4px; }
+
+  /* Status bar */
+  .status-bar { font-size: 0.6875rem; color: var(--d-text-tertiary); background: var(--d-surface-100); }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 4px rgba(74,222,128,0.4); }
+
+  /* Toast override */
+  .toast-dispatch { --bs-toast-bg: var(--d-surface-200); --bs-toast-border-color: rgba(255,255,255,0.10); --bs-toast-color: var(--d-text-primary); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+
+  @keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .toast-animate { animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="app-sidebar">
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--d-text-inverse)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      </div>
+      <span class="fw-bold" style="font-size:0.9375rem; letter-spacing:-0.3px;">Dispatch</span>
+     
+    </div>
+
+    <!-- Collections / History tabs -->
+    <ul class="nav nav-tabs sidebar-nav border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+      <li class="nav-item flex-fill"><a class="nav-link active" href="#">Collections</a></li>
+      <li class="nav-item flex-fill"><a class="nav-link" href="#">History</a></li>
+    </ul>
+
+    <!-- Search -->
+    <div class="sidebar-search position-relative px-2 py-2">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" class="form-control form-control-sm" placeholder="Search requests...">
+    </div>
+
+    <!-- Collection Tree -->
+    <div class="tree-scroll px-2">
+      <div class="list-group list-group-flush tree-list">
+        <!-- User Service -->
+        <a class="list-group-item collection" href="#">
+          <i class="bi bi-chevron-down" style="font-size:0.625rem; color:var(--d-text-tertiary);"></i>
+          <i class="bi bi-folder2" style="font-size:0.8125rem; color:var(--d-text-tertiary);"></i>
+          <span class="tree-name">User Service</span>
+        </a>
+        <div class="ps-3">
+          <!-- Auth Folder -->
+          <a class="list-group-item folder" href="#">
+            <i class="bi bi-chevron-down" style="font-size:0.625rem; color:var(--d-text-tertiary);"></i>
+            <i class="bi bi-folder2" style="font-size:0.8125rem; color:var(--d-text-tertiary);"></i>
+            <span class="tree-name">Auth</span>
+          </a>
+          <div class="ps-3">
+            <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post">POST</span> <span class="tree-name">Login</span></a>
+            <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post">POST</span> <span class="tree-name">Register</span></a>
+            <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post">POST</span> <span class="tree-name">Refresh Token</span></a>
+          </div>
+          <!-- Endpoints -->
+          <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-get">GET</span> <span class="tree-name">Get All Users</span></a>
+          <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-get">GET</span> <span class="tree-name">Get User by ID</span></a>
+          <a class="list-group-item active" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-post">POST</span> <span class="tree-name">Create User</span></a>
+          <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-put">PUT</span> <span class="tree-name">Update User</span></a>
+          <a class="list-group-item" href="#"><span style="width:14px; display:inline-block;"></span> <span class="badge badge-method badge-del">DEL</span> <span class="tree-name">Delete User</span></a>
+        </div>
+        <!-- Collapsed collections -->
+        <a class="list-group-item collection mt-1" href="#">
+          <i class="bi bi-chevron-right" style="font-size:0.625rem; color:var(--d-text-tertiary);"></i>
+          <i class="bi bi-folder2" style="font-size:0.8125rem; color:var(--d-text-tertiary);"></i>
+          <span class="tree-name">Payment Service</span>
+        </a>
+        <a class="list-group-item collection mt-1" href="#">
+          <i class="bi bi-chevron-right" style="font-size:0.625rem; color:var(--d-text-tertiary);"></i>
+          <i class="bi bi-folder2" style="font-size:0.8125rem; color:var(--d-text-tertiary);"></i>
+          <span class="tree-name">Notification Service</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="d-flex gap-1 px-2 py-2 border-top" style="border-color: rgba(255,255,255,0.06) !important;">
+      <button class="btn btn-sm sidebar-action"><i class="bi bi-plus"></i> New</button>
+      <button class="btn btn-sm sidebar-action"><i class="bi bi-upload"></i> Import</button>
+      <button class="btn btn-sm sidebar-action"><i class="bi bi-gear"></i></button>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main class="app-main">
+    <!-- Request Tabs -->
+    <div class="req-tabs-bar">
+      <a class="req-tab-link" href="#">
+        <span class="badge badge-method badge-get">GET</span>
+        <span class="tab-name">Get All Users</span>
+        <button class="btn-tab-close">&times;</button>
+      </a>
+      <a class="req-tab-link active" href="#">
+        <span class="badge badge-method badge-post">POST</span>
+        <span class="tab-name">Create User</span>
+        <span class="unsaved-dot"></span>
+        <button class="btn-tab-close">&times;</button>
+      </a>
+      <a class="req-tab-link" href="#">
+        <span class="badge badge-method badge-del">DEL</span>
+        <span class="tab-name">Delete User</span>
+        <button class="btn-tab-close">&times;</button>
+      </a>
+      <button class="btn-tab-new" title="New tab (Ctrl+N)">
+        <i class="bi bi-plus"></i>
+      </button>
+    </div>
+
+    <div class="workspace">
+      <!-- REQUEST PANE -->
+      <div class="request-pane">
+        <!-- URL Bar -->
+        <div class="d-flex gap-2 px-3 py-3 align-items-center url-bar-group">
+          <div class="input-group">
+            <button class="btn btn-method dropdown-toggle" type="button">POST <i class="bi bi-chevron-down" style="font-size:0.5625rem;"></i></button>
+            <input type="text" class="form-control" value="{{baseUrl}}/api/users">
+          </div>
+          <button class="btn btn-send d-flex align-items-center gap-2">
+            <i class="bi bi-send-fill" style="position:relative; z-index:1;"></i>
+            <span>Send</span>
+          </button>
+        </div>
+
+        <!-- Resolved URL -->
+        <div class="url-resolved px-3 pb-1 d-flex align-items-center gap-2">
+          <span class="url-resolved-label">Resolved</span>
+          http://localhost:5000/api/users
+        </div>
+
+        <!-- Config Tabs -->
+        <ul class="nav nav-tabs nav-config px-3">
+          <li class="nav-item"><a class="nav-link" href="#">Params</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Headers <span class="badge-count">2</span></a></li>
+          <li class="nav-item"><a class="nav-link active" href="#">Body</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Auth</a></li>
+        </ul>
+
+        <!-- Body Type Pills -->
+        <div class="body-type-pills d-flex gap-1 px-3 py-1 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+          <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="bodyType" id="bodyNone" autocomplete="off">
+            <label class="btn btn-outline-secondary rounded-pill" for="bodyNone">none</label>
+            <input type="radio" class="btn-check" name="bodyType" id="bodyJson" autocomplete="off" checked>
+            <label class="btn btn-outline-secondary rounded-pill" for="bodyJson">JSON</label>
+            <input type="radio" class="btn-check" name="bodyType" id="bodyForm" autocomplete="off">
+            <label class="btn btn-outline-secondary rounded-pill" for="bodyForm">form-data</label>
+            <input type="radio" class="btn-check" name="bodyType" id="bodyRaw" autocomplete="off">
+            <label class="btn btn-outline-secondary rounded-pill" for="bodyRaw">raw</label>
+            <input type="radio" class="btn-check" name="bodyType" id="bodyBin" autocomplete="off">
+            <label class="btn btn-outline-secondary rounded-pill" for="bodyBin">binary</label>
+          </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="editor-area px-3 py-2">
+          <div class="code-block">
+            <div class="code-line"><span class="code-ln">1</span><span class="syn-punc">{</span></div>
+            <div class="code-line"><span class="code-ln">2</span>&nbsp;&nbsp;<span class="syn-key">"name"</span><span class="syn-punc">:</span> <span class="syn-str">"Jane Doe"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">3</span>&nbsp;&nbsp;<span class="syn-key">"email"</span><span class="syn-punc">:</span> <span class="syn-str">"jane@example.com"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">4</span>&nbsp;&nbsp;<span class="syn-key">"role"</span><span class="syn-punc">:</span> <span class="syn-str">"admin"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">5</span>&nbsp;&nbsp;<span class="syn-key">"active"</span><span class="syn-punc">:</span> <span class="syn-bool">true</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">6</span>&nbsp;&nbsp;<span class="syn-key">"metadata"</span><span class="syn-punc">:</span> <span class="syn-punc">{</span></div>
+            <div class="code-line"><span class="code-ln">7</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="syn-key">"source"</span><span class="syn-punc">:</span> <span class="syn-str">"dispatch"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">8</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="syn-key">"version"</span><span class="syn-punc">:</span> <span class="syn-num">2</span></div>
+            <div class="code-line"><span class="code-ln">9</span>&nbsp;&nbsp;<span class="syn-punc">}</span></div>
+            <div class="code-line"><span class="code-ln">10</span><span class="syn-punc">}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESIZE HANDLE -->
+      <div class="resize-handle"></div>
+
+      <!-- RESPONSE PANE -->
+      <div class="response-pane">
+        <!-- Response bar -->
+        <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.06) !important;">
+          <span class="fw-semibold" style="font-size:0.75rem; color:var(--d-text-secondary);">Response</span>
+          <span class="badge badge-status badge-2xx">201 Created</span>
+          <span class="response-meta">142ms</span>
+          <span class="response-meta">1.2 KB</span>
+          <div class="d-flex gap-1 ms-auto">
+            <button class="btn btn-sm btn-action"><i class="bi bi-clipboard"></i> Copy</button>
+            <button class="btn btn-sm btn-action active">Pretty</button>
+            <button class="btn btn-sm btn-action">Raw</button>
+          </div>
+        </div>
+
+        <!-- Response Tabs -->
+        <ul class="nav nav-tabs nav-config px-3">
+          <li class="nav-item"><a class="nav-link active" href="#">Body</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Headers <span class="badge-count">9</span></a></li>
+        </ul>
+
+        <!-- Response Body -->
+        <div class="response-body px-3 py-2">
+          <div class="code-block">
+            <div class="code-line"><span class="code-ln">1</span><span class="syn-punc">{</span></div>
+            <div class="code-line"><span class="code-ln">2</span>&nbsp;&nbsp;<span class="syn-key">"id"</span><span class="syn-punc">:</span> <span class="syn-num">47</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">3</span>&nbsp;&nbsp;<span class="syn-key">"name"</span><span class="syn-punc">:</span> <span class="syn-str">"Jane Doe"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">4</span>&nbsp;&nbsp;<span class="syn-key">"email"</span><span class="syn-punc">:</span> <span class="syn-str">"jane@example.com"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">5</span>&nbsp;&nbsp;<span class="syn-key">"role"</span><span class="syn-punc">:</span> <span class="syn-str">"admin"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">6</span>&nbsp;&nbsp;<span class="syn-key">"active"</span><span class="syn-punc">:</span> <span class="syn-bool">true</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">7</span>&nbsp;&nbsp;<span class="syn-key">"metadata"</span><span class="syn-punc">:</span> <span class="syn-punc">{</span></div>
+            <div class="code-line"><span class="code-ln">8</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="syn-key">"source"</span><span class="syn-punc">:</span> <span class="syn-str">"dispatch"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">9</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="syn-key">"version"</span><span class="syn-punc">:</span> <span class="syn-num">2</span></div>
+            <div class="code-line"><span class="code-ln">10</span>&nbsp;&nbsp;<span class="syn-punc">}</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">11</span>&nbsp;&nbsp;<span class="syn-key">"createdAt"</span><span class="syn-punc">:</span> <span class="syn-str">"2026-03-10T09:14:22.847Z"</span><span class="syn-punc">,</span></div>
+            <div class="code-line"><span class="code-ln">12</span>&nbsp;&nbsp;<span class="syn-key">"updatedAt"</span><span class="syn-punc">:</span> <span class="syn-str">"2026-03-10T09:14:22.847Z"</span></div>
+            <div class="code-line"><span class="code-ln">13</span><span class="syn-punc">}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar d-flex align-items-center gap-3 px-3 py-1 border-top" style="border-color: rgba(255,255,255,0.06) !important;">
+      <span class="d-flex align-items-center gap-1"><span class="status-dot"></span> Connected</span>
+      <span class="d-flex align-items-center gap-1"><i class="bi bi-clock" style="font-size:0.625rem;"></i> Last sent 2s ago</span>
+      <span class="d-flex align-items-center gap-1 ms-auto"><kbd class="bg-dark border" style="font-size:0.625rem;">Ctrl+Enter</kbd> Send</span>
+      <span class="d-flex align-items-center gap-1"><kbd class="bg-dark border" style="font-size:0.625rem;">Ctrl+S</kbd> Save</span>
+      <span class="d-flex align-items-center gap-1"><kbd class="bg-dark border" style="font-size:0.625rem;">Ctrl+N</kbd> New</span>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div class="toast toast-dispatch show toast-animate" role="alert">
+    <div class="toast-body d-flex align-items-center gap-2">
+      <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:20px; height:20px; background:var(--d-status-2xx-bg); color:var(--d-status-2xx); font-size:0.6875rem; font-weight:700;">&#10003;</span>
+      201 Created — 142ms
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
