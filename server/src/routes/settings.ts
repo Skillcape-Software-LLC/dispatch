@@ -29,6 +29,15 @@ export async function settingsRoutes(fastify: FastifyInstance): Promise<void> {
           defaultContentType: { type: 'string' },
           proxyUrl: { type: 'string' },
           proxyLogLevel: { type: 'string', enum: ['none', 'basic', 'verbose'] },
+          centralConfig: {
+            type: 'object',
+            properties: {
+              url: { type: 'string' },
+              instanceToken: { type: 'string' },
+              instanceName: { type: 'string' },
+            },
+            additionalProperties: false,
+          },
         },
         additionalProperties: false,
       },

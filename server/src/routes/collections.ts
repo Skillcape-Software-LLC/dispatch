@@ -43,14 +43,37 @@ export async function collectionsRoutes(fastify: FastifyInstance): Promise<void>
   });
 
   // PATCH /api/collections/:id
-  fastify.patch<{ Params: { id: string }; Body: { name: string } }>(
+  type CollectionPatchBody = {
+    name?: string;
+    channelId?: string;
+    centralUrl?: string;
+    syncRole?: 'owner' | 'subscriber';
+    syncMode?: 'readonly' | 'readwrite';
+    lastSyncVersion?: number;
+    lastSyncAt?: string;
+  };
+  const COLLECTION_ALLOWED_KEYS: ReadonlyArray<keyof CollectionPatchBody> = [
+    'name', 'channelId', 'centralUrl', 'syncRole', 'syncMode', 'lastSyncVersion', 'lastSyncAt',
+  ];
+
+  fastify.patch<{ Params: { id: string }; Body: CollectionPatchBody }>(
     '/api/collections/:id',
     async (request, reply) => {
       const col = getCollections();
       const doc = col.findOne({ id: request.params.id });
       if (!doc) return reply.status(404).send({ error: 'not found' });
 
-      doc.name = request.body.name?.trim() ?? doc.name;
+      const body = request.body as Record<string, unknown>;
+      const updates: Partial<CollectionDocument> = {};
+      for (const key of COLLECTION_ALLOWED_KEYS) {
+        if (key in body) {
+          (updates as Record<string, unknown>)[key] = body[key];
+        }
+      }
+      if (typeof updates.name === 'string') {
+        updates.name = updates.name.trim() || doc.name;
+      }
+      Object.assign(doc, updates);
       doc.updatedAt = new Date().toISOString();
       col.update(doc);
 
@@ -88,21 +111,26 @@ export async function collectionsRoutes(fastify: FastifyInstance): Promise<void>
   // POST /api/collections/:id/requests
   fastify.post<{
     Params: { id: string };
-    Body: Pick<RequestDocument, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'>;
+    Body: Pick<RequestDocument, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'> & {
+      id?: string;
+      sortOrder?: number;
+      updatedAt?: string;
+    };
   }>('/api/collections/:id/requests', async (request, reply) => {
     if (!getCollections().findOne({ id: request.params.id })) {
       return reply.status(404).send({ error: 'not found' });
     }
 
     const now = new Date().toISOString();
+    const { id: bodyId, ...bodyRest } = request.body;
     const doc: RequestDocument = {
-      id: randomUUID(),
+      id: bodyId ?? randomUUID(),
       collectionId: request.params.id,
       folderId: null,
       sortOrder: 0,
       createdAt: now,
       updatedAt: now,
-      ...request.body,
+      ...bodyRest,
     };
     getRequests().insert(doc);
     return reply.status(201).send(strip(doc));

@@ -10,9 +10,17 @@ import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { ImportExportService } from '../../core/services/import-export.service';
 import { ImportModalService } from '../../core/services/import-modal.service';
 import { SettingsModalService } from '../../core/services/settings-modal.service';
+import { EnvironmentService } from '../../core/services/environment.service';
+import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
+import { SyncService } from '../../core/services/sync.service';
+import { PublishModalService } from '../../core/services/publish-modal.service';
+import { SubscribeModalService } from '../../core/services/subscribe-modal.service';
+import { PullPreviewModalService } from '../../core/services/pull-preview-modal.service';
+import { ChannelInfoModalService } from '../../core/services/channel-info-modal.service';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import type { Collection, SavedRequest } from '../../core/models/collection.model';
 import type { HistoryEntry } from '../../core/models/history.model';
+import type { Environment } from '../../core/models/environment.model';
 import { defaultActiveRequest, type KvEntry, type ActiveRequestBody } from '../../core/models/active-request.model';
 import type { ActiveRequestAuth } from '../../core/models/active-request.model';
 
@@ -41,11 +49,22 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private readonly importExportService = inject(ImportExportService);
   private readonly importModal = inject(ImportModalService);
   readonly settingsModal = inject(SettingsModalService);
+  readonly envService = inject(EnvironmentService);
+  private readonly envEditorModal = inject(EnvEditorModalService);
+  readonly syncService = inject(SyncService);
+  private readonly publishModal = inject(PublishModalService);
+  private readonly subscribeModal = inject(SubscribeModalService);
+  private readonly pullPreviewModal = inject(PullPreviewModalService);
+  private readonly channelInfoModal = inject(ChannelInfoModalService);
 
   @Input() collapsed = false;
   @Output() collapseToggled = new EventEmitter<void>();
 
   activeTab: 'collections' | 'history' = 'collections';
+
+  // Environment selector
+  readonly environments = signal<Environment[]>([]);
+  readonly selectedEnvId = signal<string>('');
 
   // Collections
   readonly collections = signal<Collection[]>([]);
@@ -115,9 +134,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private historyRefreshSub?: Subscription;
   private collectionsChangedSub?: Subscription;
   private requestUpdatedSub?: Subscription;
+  private syncCompletedSub?: Subscription;
 
   ngOnInit(): void {
     this.loadCollections();
+    this.loadEnvironments();
     this.historyRefreshSub = this.historyService.newEntry$.subscribe(() => {
       if (this.activeTab === 'history') {
         this.loadHistory();
@@ -131,12 +152,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.loadRequests(collectionId);
       }
     });
+    this.syncCompletedSub = this.syncService.syncCompleted$.subscribe(() => {
+      this.loadCollections();
+    });
   }
 
   ngOnDestroy(): void {
     this.historyRefreshSub?.unsubscribe();
     this.collectionsChangedSub?.unsubscribe();
     this.requestUpdatedSub?.unsubscribe();
+    this.syncCompletedSub?.unsubscribe();
   }
 
   setTab(tab: 'collections' | 'history'): void {
@@ -144,6 +169,36 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (tab === 'history') {
       this.loadHistory();
     }
+  }
+
+  // --- Environments ---
+
+  private loadEnvironments(): void {
+    this.envService.getEnvironments().subscribe((envs) => {
+      this.environments.set(envs);
+      const savedId = this.envService.activeEnvironmentId();
+      if (savedId && envs.some((e) => e.id === savedId)) {
+        this.selectedEnvId.set(savedId);
+        const env = envs.find((e) => e.id === savedId);
+        if (env) {
+          this.envService.setActiveEnvironment(savedId, env.variables);
+        }
+      }
+    });
+  }
+
+  onEnvChange(id: string): void {
+    this.selectedEnvId.set(id);
+    if (!id) {
+      this.envService.setActiveEnvironment(null, []);
+    } else {
+      const env = this.environments().find((e) => e.id === id);
+      this.envService.setActiveEnvironment(id, env?.variables ?? []);
+    }
+  }
+
+  openEnvEditor(): void {
+    this.envEditorModal.open();
   }
 
   // --- Collections ---
@@ -347,6 +402,57 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       error: () => this.toast.show('Failed to delete request', 'error'),
     });
+  }
+
+  // --- Sync helpers ---
+
+  isSynced(col: Collection): boolean {
+    return !!col.channelId;
+  }
+
+  canPush(col: Collection): boolean {
+    return this.isSynced(col) && (col.syncRole === 'owner' || col.syncMode === 'readwrite');
+  }
+
+  canPull(col: Collection): boolean {
+    return this.isSynced(col);
+  }
+
+  syncBadgeIcon(col: Collection): string {
+    const state = this.syncService.getSyncState(col.id);
+    switch (state) {
+      case 'syncing':     return 'bi bi-arrow-repeat sync-spinning';
+      case 'upToDate':    return 'bi bi-check-circle-fill sync-ok';
+      case 'behind':      return 'bi bi-arrow-down-circle-fill sync-behind';
+      case 'localChanges': return 'bi bi-circle-fill sync-local';
+      case 'error':       return 'bi bi-exclamation-circle-fill sync-error';
+      default:            return 'bi bi-broadcast sync-idle';
+    }
+  }
+
+  openPublishModal(col: Collection, event: MouseEvent): void {
+    event.stopPropagation();
+    this.publishModal.open(col.id, col.name);
+  }
+
+  openSubscribeModal(event: MouseEvent): void {
+    event.stopPropagation();
+    this.subscribeModal.open();
+  }
+
+  openPullPreview(col: Collection, event: MouseEvent): void {
+    event.stopPropagation();
+    this.pullPreviewModal.open(col);
+  }
+
+  openChannelInfo(col: Collection, event: MouseEvent): void {
+    event.stopPropagation();
+    this.channelInfoModal.open(col);
+  }
+
+  pushCollection(col: Collection, event: MouseEvent): void {
+    event.stopPropagation();
+    this.syncService.push(col).catch(() => this.toast.show('Push failed', 'error'));
   }
 
   openImportModal(): void {

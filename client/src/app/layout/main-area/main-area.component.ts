@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, effect } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RequestWorkspaceComponent } from '../../request-workspace/request-workspace.component';
 import { TabService } from '../../core/services/tab.service';
@@ -7,6 +7,10 @@ import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
+import { SettingsService } from '../../core/services/settings.service';
+import { CentralClientService } from '../../core/services/central-client.service';
+
+export type CentralStatus = 'none' | 'connected' | 'unreachable' | 'checking';
 
 @Component({
   selector: 'app-main-area',
@@ -15,7 +19,7 @@ import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.s
   templateUrl: './main-area.component.html',
   styleUrl: './main-area.component.scss',
 })
-export class MainAreaComponent implements OnInit {
+export class MainAreaComponent implements OnInit, OnDestroy {
   readonly tabService = inject(TabService);
   private readonly collectionService = inject(CollectionService);
   private readonly saveAsModal = inject(SaveAsModalService);
@@ -23,6 +27,20 @@ export class MainAreaComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly shortcuts = inject(KeyboardShortcutService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly settingsService = inject(SettingsService);
+  private readonly centralClient = inject(CentralClientService);
+
+  readonly centralStatus = signal<CentralStatus>('none');
+  readonly centralLabel = signal('No Central configured');
+  private statusInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    effect(() => {
+      const config = this.settingsService.settings().centralConfig;
+      // Re-check whenever settings change
+      this.checkCentralStatus(config);
+    });
+  }
 
   ngOnInit(): void {
     this.shortcuts.register('save-request', {
@@ -54,6 +72,38 @@ export class MainAreaComponent implements OnInit {
       this.shortcuts.unregister('save-request');
       this.shortcuts.unregister('new-tab');
       this.shortcuts.unregister('close-tab');
+    });
+
+    // Poll Central status every 5 minutes
+    this.statusInterval = setInterval(() => {
+      const config = this.settingsService.settings().centralConfig;
+      this.checkCentralStatus(config);
+    }, 5 * 60 * 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.statusInterval) {
+      clearInterval(this.statusInterval);
+    }
+  }
+
+  private checkCentralStatus(config?: { url?: string; instanceToken?: string }): void {
+    if (!config?.url || !config?.instanceToken) {
+      this.centralStatus.set('none');
+      this.centralLabel.set('No Central configured');
+      return;
+    }
+    this.centralStatus.set('checking');
+    this.centralLabel.set('Checking Central…');
+    this.centralClient.verifyConnection().subscribe({
+      next: () => {
+        this.centralStatus.set('connected');
+        this.centralLabel.set('Connected to Central');
+      },
+      error: () => {
+        this.centralStatus.set('unreachable');
+        this.centralLabel.set('Central unreachable');
+      },
     });
   }
 

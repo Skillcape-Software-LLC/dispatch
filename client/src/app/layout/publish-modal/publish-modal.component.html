@@ -1,0 +1,76 @@
+@if (modal.isOpen()) {
+  <div class="sync-backdrop" (click)="close()"></div>
+  <div class="sync-modal" role="dialog" aria-modal="true">
+    <div class="sync-header">
+      <span class="sync-title">PUBLISH COLLECTION</span>
+      <button class="btn-close-modal" (click)="close()" title="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sync-body">
+      @if (publishedChannelId()) {
+        <!-- Success state -->
+        <div class="success-section">
+          <div class="success-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <p class="success-msg">
+            <strong>{{ modal.collectionName() }}</strong> is now published to Dispatch Central.
+          </p>
+          <p class="success-sub">Share this channel ID with others so they can subscribe.</p>
+
+          <div class="channel-id-row">
+            <code class="channel-id">{{ publishedChannelId() }}</code>
+            <button class="btn-copy" (click)="copyChannelId()" [title]="copied() ? 'Copied!' : 'Copy channel ID'">
+              <i [class]="copied() ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Configure state -->
+        <p class="modal-desc">
+          Publishing sends a snapshot of <strong>{{ modal.collectionName() }}</strong> to Dispatch Central
+          and creates a channel others can subscribe to.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Sync Mode</label>
+          <div class="radio-group">
+            <label class="radio-option" [class.selected]="syncMode() === 'readwrite'">
+              <input type="radio" name="syncMode" value="readwrite"
+                     [checked]="syncMode() === 'readwrite'"
+                     (change)="syncMode.set('readwrite')">
+              <div class="radio-content">
+                <span class="radio-title"><i class="bi bi-arrow-left-right"></i> Read/Write</span>
+                <span class="radio-desc">Subscribers can pull; owner can push</span>
+              </div>
+            </label>
+            <label class="radio-option" [class.selected]="syncMode() === 'readonly'">
+              <input type="radio" name="syncMode" value="readonly"
+                     [checked]="syncMode() === 'readonly'"
+                     (change)="syncMode.set('readonly')">
+              <div class="radio-content">
+                <span class="radio-title"><i class="bi bi-eye"></i> Read Only</span>
+                <span class="radio-desc">Subscribers can only pull; no pushes accepted</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="sync-footer">
+      <button class="btn-cancel" (click)="close()">
+        @if (publishedChannelId()) { Close } @else { Cancel }
+      </button>
+      @if (!publishedChannelId()) {
+        <button class="btn-primary" [disabled]="publishing()" (click)="publish()">
+          @if (publishing()) {
+            <span class="spinner-xs"></span> Publishing…
+          } @else {
+            <i class="bi bi-broadcast"></i> Publish
+          }
+        </button>
+      }
+    </div>
+  </div>
+}

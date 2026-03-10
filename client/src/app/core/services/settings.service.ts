@@ -2,12 +2,19 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 
+export interface CentralConfig {
+  url: string;
+  instanceToken: string;
+  instanceName: string;
+}
+
 export interface AppSettings {
   requestTimeoutMs: number;
   historyLimit: number;
   sslVerification: boolean;
   defaultContentType: string;
   proxyUrl: string;
+  centralConfig?: CentralConfig;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {

@@ -3,26 +3,21 @@
 
   <div class="top-bar-spacer"></div>
 
-  <div class="env-selector">
-    <i class="bi bi-layers env-icon"></i>
-    <select
-      class="env-select"
-      [ngModel]="selectedId()"
-      (ngModelChange)="onEnvChange($event)"
-    >
-      <option value="">No Environment</option>
-      @for (env of environments(); track env.id) {
-        <option [value]="env.id">{{ env.name }}</option>
-      }
-    </select>
-    <button class="btn-icon" title="Manage environments" (click)="openEditor()">
-      <i class="bi bi-pencil"></i>
-    </button>
-  </div>
-
   <div class="top-bar-actions">
-    <button class="btn-icon" title="Settings" (click)="settingsModal.open()">
+    <button class="btn-icon" title="Manage Environments" (click)="openEnvEditor()">
+      <i class="bi bi-layers"></i>
+    </button>
+    <button class="btn-icon" title="General Settings" (click)="settingsModal.open('general')">
       <i class="bi bi-sliders2"></i>
+    </button>
+    <button class="btn-icon" title="Network Settings" (click)="settingsModal.open('network')">
+      <i class="bi bi-globe2"></i>
+    </button>
+    <button class="btn-icon" title="Data Settings" (click)="settingsModal.open('data')">
+      <i class="bi bi-database"></i>
+    </button>
+    <button class="btn-icon" title="Dispatch Central" (click)="settingsModal.open('central')">
+      <i class="bi bi-broadcast"></i>
     </button>
   </div>
 </div>

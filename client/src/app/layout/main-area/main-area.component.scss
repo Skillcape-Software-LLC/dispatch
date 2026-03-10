@@ -176,7 +176,27 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #4ADE80;
-  box-shadow: 0 0 4px rgba(74, 222, 128, 0.4);
+  background: #6B7280;
+  box-shadow: 0 0 4px rgba(107, 114, 128, 0.4);
   display: inline-block;
+
+  &.status-connected {
+    background: #4ADE80;
+    box-shadow: 0 0 4px rgba(74, 222, 128, 0.4);
+  }
+
+  &.status-unreachable {
+    background: #F87171;
+    box-shadow: 0 0 4px rgba(248, 113, 113, 0.4);
+  }
+
+  &.status-none {
+    background: #6B7280;
+    box-shadow: 0 0 4px rgba(107, 114, 128, 0.4);
+  }
+
+  &.status-checking {
+    background: #FBBF24;
+    box-shadow: 0 0 4px rgba(251, 191, 36, 0.4);
+  }
 }

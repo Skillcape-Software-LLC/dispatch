@@ -23,16 +23,20 @@
   } @else {
     <!-- Expanded full view -->
 
-    <!-- Header -->
-    <div class="sidebar-header d-flex align-items-center gap-2 px-3 py-2">
-      <div class="logo-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 2L11 13"/>
-          <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
-        </svg>
+    <!-- Header — Environment selector -->
+    <div class="sidebar-header d-flex align-items-center gap-2 px-2 py-2">
+      <div class="env-selector">
+        <select
+          class="env-select"
+          [ngModel]="selectedEnvId()"
+          (ngModelChange)="onEnvChange($event)"
+        >
+          <option value="">No Environment</option>
+          @for (env of environments(); track env.id) {
+            <option [value]="env.id">{{ env.name }}</option>
+          }
+        </select>
       </div>
-      <span class="logo-text">Dispatch</span>
       <button class="icon-btn ms-auto" (click)="collapseToggled.emit()" title="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
       </button>
@@ -74,7 +78,10 @@
         <!-- Section header -->
         <div class="section-header d-flex align-items-center px-1 py-1">
           <span class="section-label">Collections</span>
-          <button class="icon-btn ms-auto" (click)="startCreate()" title="New collection">
+          <button class="icon-btn ms-auto" (click)="openSubscribeModal($event)" title="Join a channel">
+            <i class="bi bi-broadcast-pin"></i>
+          </button>
+          <button class="icon-btn" (click)="startCreate()" title="New collection">
             <i class="bi bi-plus"></i>
           </button>
         </div>
@@ -118,6 +125,11 @@
                   @if (col.requestCount > 0) {
                     <span class="request-count">{{ col.requestCount }}</span>
                   }
+                  @if (isSynced(col)) {
+                    <span class="sync-badge" [title]="'Sync status: ' + syncService.getSyncState(col.id)">
+                      <i [class]="syncBadgeIcon(col)"></i>
+                    </span>
+                  }
                 </button>
                 @if (confirmingDeleteCollectionId() === col.id) {
                   <div class="delete-confirm">
@@ -131,6 +143,25 @@
                   </div>
                 } @else {
                   <div class="row-actions">
+                    @if (isSynced(col)) {
+                      @if (canPush(col)) {
+                        <button class="icon-btn" (click)="pushCollection(col, $event)" title="Push to Central">
+                          <i class="bi bi-cloud-upload"></i>
+                        </button>
+                      }
+                      @if (canPull(col)) {
+                        <button class="icon-btn" (click)="openPullPreview(col, $event)" title="Pull from Central">
+                          <i class="bi bi-cloud-download"></i>
+                        </button>
+                      }
+                      <button class="icon-btn" (click)="openChannelInfo(col, $event)" title="Channel info">
+                        <i class="bi bi-broadcast"></i>
+                      </button>
+                    } @else {
+                      <button class="icon-btn" (click)="openPublishModal(col, $event)" title="Publish to Central">
+                        <i class="bi bi-broadcast"></i>
+                      </button>
+                    }
                     <button class="icon-btn" (click)="exportCollection(col, $event)" title="Export">
                       <i class="bi bi-download"></i>
                     </button>

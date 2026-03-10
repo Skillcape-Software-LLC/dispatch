@@ -9,6 +9,10 @@ import { ImportModalComponent } from '../import-modal/import-modal.component';
 import { CodegenModalComponent } from '../codegen-modal/codegen-modal.component';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { ShortcutPanelComponent } from '../shortcut-panel/shortcut-panel.component';
+import { PublishModalComponent } from '../publish-modal/publish-modal.component';
+import { SubscribeModalComponent } from '../subscribe-modal/subscribe-modal.component';
+import { PullPreviewModalComponent } from '../pull-preview-modal/pull-preview-modal.component';
+import { ChannelInfoModalComponent } from '../channel-info-modal/channel-info-modal.component';
 import { SettingsService } from '../../core/services/settings.service';
 
 const STORAGE_WIDTH = 'dispatch-sidebar-width';
@@ -22,6 +26,8 @@ const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
     SaveAsModalComponent, TopBarComponent, EnvEditorModalComponent,
     ImportModalComponent, CodegenModalComponent,
     SettingsModalComponent, ShortcutPanelComponent,
+    PublishModalComponent, SubscribeModalComponent,
+    PullPreviewModalComponent, ChannelInfoModalComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',

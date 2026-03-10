@@ -3,7 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import type { Collection, SavedRequest } from '../models/collection.model';
 
-type SaveRequestBody = Pick<SavedRequest, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'>;
+type SaveRequestBody = Pick<SavedRequest, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'> & {
+  id?: string;
+  sortOrder?: number;
+  updatedAt?: string;
+};
+
+type CollectionSyncFields = {
+  channelId?: string;
+  centralUrl?: string;
+  syncRole?: 'owner' | 'subscriber';
+  syncMode?: 'readonly' | 'readwrite';
+  lastSyncVersion?: number;
+  lastSyncAt?: string;
+};
 
 @Injectable({ providedIn: 'root' })
 export class CollectionService {
@@ -12,8 +25,19 @@ export class CollectionService {
   private readonly _requestUpdated$ = new Subject<string>();
   readonly requestUpdated$ = this._requestUpdated$.asObservable();
 
+  private readonly _syncCompleted$ = new Subject<string>();
+  readonly syncCompleted$ = this._syncCompleted$.asObservable();
+
   notifyRequestUpdated(collectionId: string): void {
     this._requestUpdated$.next(collectionId);
+  }
+
+  notifySyncCompleted(collectionId: string): void {
+    this._syncCompleted$.next(collectionId);
+  }
+
+  updateSyncFields(id: string, fields: CollectionSyncFields): Observable<Collection> {
+    return this.http.patch<Collection>(`/api/collections/${id}`, fields);
   }
 
   getCollections(): Observable<Collection[]> {

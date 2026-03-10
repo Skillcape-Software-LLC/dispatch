@@ -27,7 +27,7 @@
   <!-- Status bar -->
   <div class="status-bar d-flex align-items-center gap-3 px-3 py-1">
     <span class="d-flex align-items-center gap-1">
-      <span class="status-dot"></span> Ready
+      <span class="status-dot" [ngClass]="'status-' + centralStatus()"></span> {{ centralLabel() }}
     </span>
     <span class="ms-auto d-flex align-items-center gap-3">
       <span class="d-flex align-items-center gap-1">

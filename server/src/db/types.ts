@@ -59,6 +59,13 @@ export interface CollectionDocument {
   variables: VariableEntry[];
   createdAt: string;
   updatedAt: string;
+  // Dispatch Central sync fields (optional — unsynced collections omit these)
+  channelId?: string;
+  centralUrl?: string;
+  syncRole?: 'owner' | 'subscriber';
+  syncMode?: 'readonly' | 'readwrite';
+  lastSyncVersion?: number;
+  lastSyncAt?: string;
 }
 
 export interface EnvironmentVariable {

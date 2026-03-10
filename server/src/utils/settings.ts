@@ -1,5 +1,11 @@
 import { getSettings } from '../db/database';
 
+export interface CentralConfig {
+  url: string;
+  instanceToken: string;
+  instanceName: string;
+}
+
 export interface AppSettings {
   requestTimeoutMs: number;
   historyLimit: number;
@@ -7,6 +13,7 @@ export interface AppSettings {
   defaultContentType: string;
   proxyUrl: string;
   proxyLogLevel: 'none' | 'basic' | 'verbose';
+  centralConfig?: CentralConfig;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {

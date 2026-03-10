@@ -1,0 +1,91 @@
+@if (modal.isOpen()) {
+  <div class="sync-backdrop" (click)="close()"></div>
+  <div class="sync-modal" role="dialog" aria-modal="true">
+    <div class="sync-header">
+      <span class="sync-title">CHANNEL INFO</span>
+      <button class="btn-close-modal" (click)="close()" title="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sync-body">
+      @if (loading()) {
+        <div class="loading-state">
+          <span class="spinner-sm"></span>
+          <span>Loading channel info…</span>
+        </div>
+      } @else if (error()) {
+        <div class="error-msg"><i class="bi bi-exclamation-circle-fill"></i> {{ error() }}</div>
+      } @else if (channelInfo()) {
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">Channel ID</span>
+            <div class="info-val copyable">
+              <code class="channel-id-sm">{{ modal.collection()?.channelId }}</code>
+              <button class="btn-copy-sm" (click)="copyChannelId()" [title]="copied() ? 'Copied!' : 'Copy'">
+                <i [class]="copied() ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Your Role</span>
+            <span class="info-val">
+              <span class="role-badge" [class.owner]="modal.collection()?.syncRole === 'owner'">
+                {{ modal.collection()?.syncRole ?? 'subscriber' }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Mode</span>
+            <span class="info-val">{{ channelInfo()!.mode }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Version</span>
+            <span class="info-val">{{ channelInfo()!.version }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Subscribers</span>
+            <span class="info-val">{{ channelInfo()!.subscriberCount }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Last Sync</span>
+            <span class="info-val">{{ modal.collection()?.lastSyncAt ? (modal.collection()!.lastSyncAt | date:'medium') : 'Never' }}</span>
+          </div>
+        </div>
+
+        @if (modal.collection()?.syncRole === 'owner') {
+          <div class="owner-controls">
+            <div class="section-label">OWNER CONTROLS</div>
+            <div class="control-row">
+              <span class="control-label">Sync Mode</span>
+              <button class="btn-toggle-mode" [disabled]="changingMode()" (click)="toggleMode()">
+                @if (changingMode()) {
+                  <span class="spinner-xs"></span>
+                } @else {
+                  Switch to {{ channelInfo()!.mode === 'readonly' ? 'Read/Write' : 'Read Only' }}
+                }
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="sync-footer">
+      <button class="btn-danger-outline" [disabled]="unlinking()" (click)="unlink()">
+        @if (unlinking()) {
+          <span class="spinner-xs"></span>
+        } @else {
+          <i class="bi bi-broadcast-pin"></i>
+        }
+        @if (modal.collection()?.syncRole === 'owner') { Unpublish } @else { Unsubscribe }
+      </button>
+      <button class="btn-cancel" (click)="close()">Close</button>
+    </div>
+  </div>
+}

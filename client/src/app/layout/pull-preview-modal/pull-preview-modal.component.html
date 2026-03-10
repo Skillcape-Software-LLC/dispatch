@@ -1,0 +1,68 @@
+@if (modal.isOpen()) {
+  <div class="sync-backdrop" (click)="close()"></div>
+  <div class="sync-modal" role="dialog" aria-modal="true">
+    <div class="sync-header">
+      <span class="sync-title">PULL PREVIEW</span>
+      <button class="btn-close-modal" (click)="close()" title="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sync-body">
+      @if (loading()) {
+        <div class="loading-state">
+          <span class="spinner-sm"></span>
+          <span>Checking for changes…</span>
+        </div>
+      } @else if (error()) {
+        <div class="error-msg"><i class="bi bi-exclamation-circle-fill"></i> {{ error() }}</div>
+      } @else if (preview()) {
+        @if (preview()!.upserted === 0 && preview()!.deleted === 0) {
+          <div class="up-to-date">
+            <i class="bi bi-check-circle-fill"></i>
+            <p>Already up to date</p>
+            <p class="hint">No changes since last sync (version {{ modal.collection()?.lastSyncVersion ?? 0 }})</p>
+          </div>
+        } @else {
+          <p class="modal-desc">The following changes will be applied to your local collection:</p>
+
+          <div class="change-list">
+            @if (preview()!.upserted > 0) {
+              <div class="change-row added">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>{{ preview()!.upserted }} request{{ preview()!.upserted !== 1 ? 's' : '' }} added / updated</span>
+              </div>
+            }
+            @if (preview()!.deleted > 0) {
+              <div class="change-row deleted">
+                <i class="bi bi-dash-circle-fill"></i>
+                <span>{{ preview()!.deleted }} request{{ preview()!.deleted !== 1 ? 's' : '' }} removed</span>
+              </div>
+            }
+          </div>
+
+          <div class="version-row">
+            <span class="version-label">Server version</span>
+            <span class="version-val">{{ preview()!.serverVersion }}</span>
+            <span class="version-sep">→</span>
+            <span class="version-label">Your version</span>
+            <span class="version-val">{{ modal.collection()?.lastSyncVersion ?? 0 }}</span>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="sync-footer">
+      <button class="btn-cancel" (click)="close()">Cancel</button>
+      @if (preview() && (preview()!.upserted > 0 || preview()!.deleted > 0) && !loading()) {
+        <button class="btn-primary" [disabled]="pulling()" (click)="pull()">
+          @if (pulling()) {
+            <span class="spinner-xs"></span> Pulling…
+          } @else {
+            <i class="bi bi-cloud-download"></i> Pull Now
+          }
+        </button>
+      }
+    </div>
+  </div>
+}

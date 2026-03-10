@@ -1,0 +1,47 @@
+@if (modal.isOpen()) {
+  <div class="sync-backdrop" (click)="close()"></div>
+  <div class="sync-modal" role="dialog" aria-modal="true">
+    <div class="sync-header">
+      <span class="sync-title">SUBSCRIBE TO CHANNEL</span>
+      <button class="btn-close-modal" (click)="close()" title="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sync-body">
+      <p class="modal-desc">
+        Enter the channel ID shared with you to subscribe and import the collection.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="subCentralUrl">Central Server URL</label>
+        <input id="subCentralUrl" type="text" class="form-input"
+               placeholder="https://central.example.com"
+               [(ngModel)]="centralUrl">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="subChannelId">Channel ID</label>
+        <input id="subChannelId" type="text" class="form-input"
+               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+               [(ngModel)]="channelId"
+               (keydown.enter)="subscribe()">
+      </div>
+
+      @if (error()) {
+        <div class="error-msg"><i class="bi bi-exclamation-circle-fill"></i> {{ error() }}</div>
+      }
+    </div>
+
+    <div class="sync-footer">
+      <button class="btn-cancel" (click)="close()">Cancel</button>
+      <button class="btn-primary" [disabled]="subscribing()" (click)="subscribe()">
+        @if (subscribing()) {
+          <span class="spinner-xs"></span> Subscribing…
+        } @else {
+          <i class="bi bi-broadcast-pin"></i> Subscribe
+        }
+      </button>
+    </div>
+  </div>
+}

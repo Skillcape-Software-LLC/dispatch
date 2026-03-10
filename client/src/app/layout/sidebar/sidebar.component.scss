@@ -26,39 +26,38 @@
   flex-shrink: 0;
 }
 
-.logo-mark {
-  width: 26px;
-  height: 26px;
-  background: var(--d-amber-500);
-  border-radius: 0.375rem;
+/* Environment selector */
+.env-selector {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 16px rgba(245, 166, 35, 0.15);
-  position: relative;
-  flex-shrink: 0;
-  color: var(--d-text-inverse);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
-    border-radius: inherit;
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-    position: relative;
-    z-index: 1;
-  }
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.logo-text {
-  font-weight: 700;
-  font-size: 0.9375rem;
-  letter-spacing: -0.3px;
+.env-select {
+  background: var(--d-surface-300);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.375rem;
+  color: var(--d-text-primary);
+  font-size: 0.75rem;
+  padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  flex: 1;
+  min-width: 0;
+  transition: border-color 120ms;
+
+  &:focus { border-color: var(--d-amber-400); }
+
+  option {
+    background: var(--d-surface-300);
+    color: var(--d-text-primary);
+  }
 }
 
 /* Nav tabs */
@@ -337,6 +336,29 @@
     color: #f87171;
   }
 }
+
+/* Sync badge in collection header */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+  margin-left: 0.125rem;
+
+  i { line-height: 1; }
+
+  .sync-idle   { color: var(--d-text-tertiary); }
+  .sync-ok     { color: #4ade80; }
+  .sync-behind { color: #60a5fa; }
+  .sync-local  { color: #fbbf24; }
+  .sync-error  { color: #f87171; }
+  .sync-spinning {
+    color: var(--d-text-tertiary);
+    animation: spin 800ms linear infinite;
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .request-count {
   font-size: 0.625rem;

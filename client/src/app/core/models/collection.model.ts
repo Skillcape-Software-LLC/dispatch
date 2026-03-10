@@ -3,7 +3,20 @@ import type { ActiveRequestAuth } from './active-request.model';
 export interface Collection {
   id: string;
   name: string;
+  description: string;
+  folders: unknown[];
+  auth: unknown;
+  variables: unknown[];
   requestCount: number;
+  createdAt: string;
+  updatedAt: string;
+  // Dispatch Central sync fields (optional — unsynced collections omit these)
+  channelId?: string;
+  centralUrl?: string;
+  syncRole?: 'owner' | 'subscriber';
+  syncMode?: 'readonly' | 'readwrite';
+  lastSyncVersion?: number;
+  lastSyncAt?: string;
 }
 
 export interface SavedRequest {

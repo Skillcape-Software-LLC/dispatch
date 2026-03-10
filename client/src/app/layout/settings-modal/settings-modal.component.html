@@ -2,7 +2,14 @@
   <div class="settings-backdrop"></div>
   <div class="settings-modal" role="dialog" aria-modal="true">
     <div class="settings-header">
-      <span class="settings-title">SETTINGS</span>
+      <span class="settings-title">
+        @switch (activeTab()) {
+          @case ('general') { GENERAL SETTINGS }
+          @case ('network') { NETWORK }
+          @case ('data') { DATA }
+          @case ('central') { DISPATCH CENTRAL }
+        }
+      </span>
       <button class="btn-close-modal" (click)="cancel()" title="Close">
         <i class="bi bi-x-lg"></i>
       </button>
@@ -12,6 +19,7 @@
       <button class="settings-tab" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">General</button>
       <button class="settings-tab" [class.active]="activeTab() === 'network'" (click)="activeTab.set('network')">Network</button>
       <button class="settings-tab" [class.active]="activeTab() === 'data'" (click)="activeTab.set('data')">Data</button>
+      <button class="settings-tab" [class.active]="activeTab() === 'central'" (click)="activeTab.set('central')">Central</button>
     </div>
 
     <div class="settings-body">
@@ -111,13 +119,77 @@
         </div>
       }
 
+      @if (activeTab() === 'central') {
+        <div class="settings-section">
+          <div class="section-title">DISPATCH CENTRAL</div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="centralUrl">Central Server URL</label>
+              <span class="setting-desc">The base URL of your Dispatch Central instance</span>
+            </div>
+            <input id="centralUrl" type="text" class="setting-input wide" placeholder="https://central.example.com"
+                   [(ngModel)]="centralDraft.url">
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="centralInstanceName">Instance Name</label>
+              <span class="setting-desc">A friendly name to identify this Dispatch instance</span>
+            </div>
+            <input id="centralInstanceName" type="text" class="setting-input wide" placeholder="My Dispatch"
+                   [(ngModel)]="centralDraft.instanceName">
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="centralPassphrase">Passphrase</label>
+              <span class="setting-desc">Used once for registration — never stored</span>
+            </div>
+            <input id="centralPassphrase" type="password" class="setting-input wide" placeholder="••••••••"
+                   [(ngModel)]="centralDraft.passphrase"
+                   [disabled]="connectStatus() === 'connected'">
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              @if (connectStatus() === 'connected') {
+                <span class="status-connected"><i class="bi bi-check-circle-fill"></i> Connected</span>
+                <button class="disconnect-link" (click)="disconnect()">Disconnect</button>
+              } @else if (connectStatus() === 'error') {
+                <span class="status-error"><i class="bi bi-exclamation-circle-fill"></i> {{ connectError() }}</span>
+              } @else {
+                <span class="setting-desc">Connect to enable collection sync across Dispatch instances</span>
+              }
+            </div>
+            @if (connectStatus() !== 'connected') {
+              <button class="btn-connect" [disabled]="connectStatus() === 'connecting'" (click)="connect()">
+                @if (connectStatus() === 'connecting') {
+                  <span class="spinner-xs"></span> Connecting…
+                } @else {
+                  <i class="bi bi-broadcast"></i> Connect
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
     </div>
 
     <div class="settings-footer">
       <button class="btn-cancel" (click)="cancel()">Cancel</button>
-      <button class="btn-save" [disabled]="saving()" (click)="save()">
-        @if (saving()) { Saving… } @else { Save Changes }
-      </button>
+      @if (activeTab() !== 'central') {
+        <button class="btn-save" [disabled]="saving()" (click)="save()">
+          @if (saving()) { Saving… } @else { Save Changes }
+        </button>
+      }
     </div>
   </div>
 }
