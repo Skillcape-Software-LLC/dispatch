@@ -153,6 +153,37 @@
   &:hover { background: rgba(248, 113, 113, 0.1); }
 }
 
+/* Assembled URL preview strip */
+.url-preview {
+  padding: 0.2rem 0.75rem;
+  background: var(--d-surface-100);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-family: var(--d-font-mono);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  cursor: default;
+
+  &.has-params { cursor: pointer; }
+}
+
+.url-preview-base {
+  color: var(--d-text-tertiary);
+}
+
+.url-preview-placeholder {
+  color: var(--d-text-tertiary);
+  opacity: 0.45;
+  font-style: italic;
+}
+
+.url-preview-qs {
+  color: var(--d-amber-400);
+  opacity: 0.75;
+}
+
 /* Config tabs */
 .config-nav {
   display: flex;

@@ -30,9 +30,9 @@
   }
 
   &.active {
-    background: var(--d-amber-glow);
-    border-color: var(--d-amber-border);
-    color: var(--d-amber-400);
+    background: #1c2027;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--d-text-primary);
   }
 }
 
@@ -72,4 +72,10 @@
 
 ::ng-deep .editor-container {
   height: 100% !important;
+}
+
+::ng-deep .monaco-editor,
+::ng-deep .monaco-editor-background,
+::ng-deep .monaco-editor .margin {
+  background-color: #1c2027 !important;
 }

@@ -18,9 +18,16 @@ export class BodyEditorComponent {
 
   readonly modes: BodyMode[] = ['none', 'json', 'raw', 'form-data', 'binary'];
 
+  // Primitive computed — only changes when mode changes, not when content changes.
+  // This prevents editorOptions from producing a new object on every keystroke,
+  // which would cause ngx-monaco-editor to dispose + recreate (losing focus).
+  private readonly editorLanguage = computed(() =>
+    this.body().mode === 'json' ? 'json' : 'plaintext'
+  );
+
   readonly editorOptions = computed(() => ({
     theme: 'vs-dark',
-    language: this.body().mode === 'json' ? 'json' : 'plaintext',
+    language: this.editorLanguage(),
     automaticLayout: true,
     readOnly: false,
     minimap: { enabled: false },
@@ -32,7 +39,8 @@ export class BodyEditorComponent {
   }));
 
   setMode(mode: BodyMode): void {
-    this.bodyChange.emit({ ...this.body(), mode });
+    const content = mode === 'json' && !this.body().content.trim() ? '{\n  \n}' : this.body().content;
+    this.bodyChange.emit({ mode, content });
   }
 
   setContent(content: string): void {

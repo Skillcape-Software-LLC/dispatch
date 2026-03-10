@@ -50,12 +50,8 @@
         </button>
       </div>
 
-      <button class="btn-copy" (click)="copyBody()" [class.copied]="copied()">
-        @if (copied()) {
-          <i class="bi bi-check"></i> Copied
-        } @else {
-          <i class="bi bi-clipboard"></i> Copy
-        }
+      <button class="btn-copy" (click)="copyBody()">
+        <i class="bi bi-clipboard"></i> Copy
       </button>
     </div>
 

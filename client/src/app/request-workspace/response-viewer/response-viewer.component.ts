@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { RequestStateService } from '../../core/services/request-state.service';
+import { ToastService } from '../../core/services/toast.service';
 import { ProxyError } from '../../core/models/proxy-result.model';
 
 type ResponseTab = 'body' | 'headers';
@@ -25,9 +26,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 })
 export class ResponseViewerComponent {
   readonly state = inject(RequestStateService);
+  private readonly toast = inject(ToastService);
 
   activeTab = signal<ResponseTab>('body');
-  copied = signal(false);
 
   readonly statusClass = computed(() => {
     const s = this.state.lastResponse()?.status;
@@ -88,9 +89,7 @@ export class ResponseViewerComponent {
   }
 
   async copyBody(): Promise<void> {
-    const body = this.prettyBody();
-    await navigator.clipboard.writeText(body);
-    this.copied.set(true);
-    setTimeout(() => this.copied.set(false), 1500);
+    await navigator.clipboard.writeText(this.prettyBody());
+    this.toast.show('Response copied to clipboard');
   }
 }

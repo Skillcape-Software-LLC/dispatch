@@ -98,18 +98,3 @@
   }
 }
 
-.btn-add {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.375rem 0.75rem;
-  background: none;
-  border: none;
-  color: var(--d-text-tertiary);
-  font-size: 0.8125rem;
-  cursor: pointer;
-  transition: color 120ms;
-  flex-shrink: 0;
-
-  &:hover { color: var(--d-amber-400); }
-}

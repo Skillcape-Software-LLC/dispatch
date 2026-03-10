@@ -1,0 +1,15 @@
+<div class="toast-container">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast-item toast-animate" [class]="'toast-' + toast.type">
+      <span class="toast-icon">
+        @if (toast.type === 'success') { <i class="bi bi-check"></i> }
+        @else if (toast.type === 'error') { <i class="bi bi-x"></i> }
+        @else { <i class="bi bi-info"></i> }
+      </span>
+      <span class="toast-message">{{ toast.message }}</span>
+      <button class="toast-close" (click)="toastService.dismiss(toast.id)">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  }
+</div>

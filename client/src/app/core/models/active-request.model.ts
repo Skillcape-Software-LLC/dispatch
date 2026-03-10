@@ -28,12 +28,16 @@ export interface ActiveRequest {
   auth: ActiveRequestAuth;
 }
 
+function emptyKvEntry(): KvEntry {
+  return { id: crypto.randomUUID(), key: '', value: '', enabled: true };
+}
+
 export function defaultActiveRequest(): ActiveRequest {
   return {
     method: 'GET',
     url: '',
-    headers: [],
-    params: [],
+    headers: [emptyKvEntry()],
+    params: [emptyKvEntry()],
     body: { mode: 'none', content: '' },
     auth: {
       type: 'none',

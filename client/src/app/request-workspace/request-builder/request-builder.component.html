@@ -46,10 +46,26 @@
     }
   </div>
 
+  <!-- Assembled URL preview — always visible to avoid layout shift -->
+  <div
+    class="url-preview"
+    [class.has-params]="assembledUrl()"
+    [title]="assembledUrl() ?? ''"
+    (click)="copyAssembledUrl()"
+  >
+    @if (assembledUrl()) {
+      <span class="url-preview-base">{{ state.currentRequest().url }}</span><!--
+      --><span class="url-preview-qs">{{ assembledUrl()!.slice(state.currentRequest().url.length) }}</span>
+    } @else {
+      <span class="url-preview-placeholder">Add query params to see the full URL</span>
+    }
+  </div>
+
   <!-- Config nav tabs -->
   <div class="config-nav">
     <button
       class="config-tab"
+      tabindex="-1"
       [class.active]="activeTab() === 'params'"
       (click)="activeTab.set('params')"
     >
@@ -60,6 +76,7 @@
     </button>
     <button
       class="config-tab"
+      tabindex="-1"
       [class.active]="activeTab() === 'headers'"
       (click)="activeTab.set('headers')"
     >
@@ -70,6 +87,7 @@
     </button>
     <button
       class="config-tab"
+      tabindex="-1"
       [class.active]="activeTab() === 'body'"
       (click)="activeTab.set('body')"
     >
@@ -77,6 +95,7 @@
     </button>
     <button
       class="config-tab"
+      tabindex="-1"
       [class.active]="activeTab() === 'auth'"
       (click)="activeTab.set('auth')"
     >
