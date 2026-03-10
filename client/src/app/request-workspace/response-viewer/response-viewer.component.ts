@@ -5,6 +5,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProxyError } from '../../core/models/proxy-result.model';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 type ResponseTab = 'body' | 'headers';
 
@@ -20,7 +21,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 @Component({
   selector: 'app-response-viewer',
   standalone: true,
-  imports: [FormsModule, NgClass, MonacoEditorModule],
+  imports: [FormsModule, NgClass, MonacoEditorModule, EmptyStateComponent],
   templateUrl: './response-viewer.component.html',
   styleUrl: './response-viewer.component.scss',
 })

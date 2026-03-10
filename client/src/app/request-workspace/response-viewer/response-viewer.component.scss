@@ -6,6 +6,15 @@
   background: var(--d-surface-200);
 }
 
+/* Idle empty state */
+.response-idle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
 /* State panels */
 .response-state {
   flex: 1;

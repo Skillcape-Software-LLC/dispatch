@@ -1,0 +1,30 @@
+@if (isOpen()) {
+  <div class="shortcut-backdrop" (click)="close()"></div>
+  <div class="shortcut-panel" role="dialog" aria-modal="true">
+    <div class="panel-header">
+      <span class="panel-title">KEYBOARD SHORTCUTS</span>
+      <button class="panel-close" (click)="close()" title="Close (Esc)">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="panel-body">
+      @for (group of getGroups(); track group.label) {
+        <div class="shortcut-group">
+          <div class="group-label">{{ group.label }}</div>
+          @for (shortcut of group.shortcuts; track shortcut.description) {
+            <div class="shortcut-row">
+              <div class="key-combo">
+                @for (part of formatKey(shortcut); track $index; let last = $last) {
+                  <kbd>{{ part }}</kbd>
+                  @if (!last) { <span class="key-sep">+</span> }
+                }
+              </div>
+              <span class="shortcut-desc">{{ shortcut.description }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

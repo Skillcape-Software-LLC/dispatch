@@ -1,7 +1,10 @@
 <div class="app-shell">
   <app-top-bar />
   <div class="app-body">
-    <app-sidebar />
+    <app-sidebar
+      [collapsed]="sidebarCollapsed()"
+      (collapseToggled)="toggleSidebar()" />
+    <div class="resize-handle" (mousedown)="startResize($event)"></div>
     <app-main-area />
   </div>
 </div>
@@ -10,3 +13,5 @@
 <app-env-editor-modal />
 <app-import-modal />
 <app-codegen-modal />
+<app-settings-modal />
+<app-shortcut-panel />

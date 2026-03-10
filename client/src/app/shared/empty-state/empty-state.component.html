@@ -1,0 +1,8 @@
+<div class="empty-state-box">
+  <i class="bi {{ icon }} empty-icon"></i>
+  @if (title) { <span class="empty-title">{{ title }}</span> }
+  @if (subtitle) { <span class="empty-subtitle">{{ subtitle }}</span> }
+  @if (actionLabel) {
+    <button class="empty-action" (click)="action.emit()">{{ actionLabel }}</button>
+  }
+</div>

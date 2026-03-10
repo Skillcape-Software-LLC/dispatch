@@ -1,3 +1,7 @@
+:host {
+  display: contents;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -8,9 +12,23 @@
 
 .app-body {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: var(--sidebar-width, 260px) 4px 1fr;
   flex: 1;
   overflow: hidden;
+}
+
+.resize-handle {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 120ms;
+  position: relative;
+  z-index: 10;
+
+  &:hover,
+  &:active {
+    background: var(--d-amber-border);
+  }
 }
 
 @keyframes fadeIn {

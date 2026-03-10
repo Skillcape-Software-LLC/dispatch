@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, Input, Output, EventEmitter } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -9,6 +9,8 @@ import { HistoryService } from '../../core/services/history.service';
 import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { ImportExportService } from '../../core/services/import-export.service';
 import { ImportModalService } from '../../core/services/import-modal.service';
+import { SettingsModalService } from '../../core/services/settings-modal.service';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import type { Collection, SavedRequest } from '../../core/models/collection.model';
 import type { HistoryEntry } from '../../core/models/history.model';
 import { defaultActiveRequest, type KvEntry, type ActiveRequestBody } from '../../core/models/active-request.model';
@@ -26,7 +28,7 @@ const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgClass, FormsModule],
+  imports: [NgClass, FormsModule, EmptyStateComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -38,6 +40,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private readonly saveAsModal = inject(SaveAsModalService);
   private readonly importExportService = inject(ImportExportService);
   private readonly importModal = inject(ImportModalService);
+  readonly settingsModal = inject(SettingsModalService);
+
+  @Input() collapsed = false;
+  @Output() collapseToggled = new EventEmitter<void>();
 
   activeTab: 'collections' | 'history' = 'collections';
 

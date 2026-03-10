@@ -81,10 +81,12 @@
 
   <!-- Empty state -->
   @else {
-    <div class="response-state empty-state">
-      <i class="bi bi-arrow-up-circle"></i>
-      <span>Send a request to see the response</span>
-      <span class="empty-hint"><kbd>Ctrl+Enter</kbd> to send</span>
+    <div class="response-idle">
+      <app-empty-state
+        icon="bi-send"
+        title="Ready to dispatch"
+        subtitle="Configure your request above and hit Send"
+      />
     </div>
   }
 </div>

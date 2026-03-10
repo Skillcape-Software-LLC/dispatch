@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { buildUrl, buildHeaders, buildBodyContent } from '../proxy/builder';
 import { buildVarMap, interpolateRequest } from '../proxy/interpolation';
 import { getHistory, getCollections, getEnvironments } from '../db/database';
+import { getEffectiveSettings } from '../utils/settings';
 import type { AuthConfig, HeaderEntry, ParamEntry, HistoryDocument } from '../db/types';
 
 interface ProxyRequestBody {
@@ -31,10 +32,46 @@ async function resolveVars(
   return buildVarMap(collectionVars, envVars);
 }
 
+function logProxy(
+  logger: FastifyInstance['log'],
+  level: 'none' | 'basic' | 'verbose',
+  method: string,
+  url: string,
+  status: number | string,
+  timeMs: number,
+  extra?: { reqHeaderCount?: number; resHeaderCount?: number; reqBodySize?: number; resBodySize?: number }
+): void {
+  if (level === 'none') return;
+  if (level === 'basic') {
+    logger.info(`${method} ${url} → ${status} (${timeMs}ms)`);
+    return;
+  }
+  // verbose
+  logger.info(
+    {
+      method,
+      url,
+      status,
+      timeMs,
+      reqHeaders: extra?.reqHeaderCount ?? 0,
+      resHeaders: extra?.resHeaderCount ?? 0,
+      reqBodyBytes: extra?.reqBodySize ?? 0,
+      resBodyBytes: extra?.resBodySize ?? 0,
+    },
+    `${method} ${url} → ${status} (${timeMs}ms)`
+  );
+}
+
 export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.post<{ Body: ProxyRequestBody }>(
     '/api/proxy',
     {
+      config: {
+        rateLimit: {
+          max: 120,
+          timeWindow: '1 minute',
+        },
+      },
       schema: {
         body: {
           type: 'object',
@@ -58,6 +95,8 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         environmentId,
         collectionId,
       } = request.body;
+
+      const settings = getEffectiveSettings();
 
       // Interpolate variables before building the request
       const vars = await resolveVars(collectionId, environmentId);
@@ -94,9 +133,9 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         builtHeaders['Content-Type'] = contentType;
       }
 
-      // Execute request with 30s timeout
+      // Execute request with configurable timeout
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30_000);
+      const timeout = setTimeout(() => controller.abort(), settings.requestTimeoutMs);
 
       let fetchResponse: Response;
       try {
@@ -117,19 +156,28 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         const causeMsg = cause instanceof Error ? cause.message : '';
         const fullMsg = `${errMsg} ${causeCode} ${causeMsg}`;
 
+        let errorCode = 'unknown';
+        let statusCode = 500;
+
         if (errName === 'AbortError') {
-          return reply.code(408).send({ error: 'timeout', time: elapsed });
+          errorCode = 'timeout';
+          statusCode = 408;
+        } else if (causeCode === 'ECONNREFUSED' || fullMsg.includes('ECONNREFUSED')) {
+          errorCode = 'connection_refused';
+          statusCode = 502;
+        } else if (causeCode === 'ENOTFOUND' || causeCode === 'EAI_AGAIN' || fullMsg.includes('ENOTFOUND') || fullMsg.includes('EAI_AGAIN')) {
+          errorCode = 'dns_failure';
+          statusCode = 502;
+        } else if (fullMsg.includes('certificate') || fullMsg.includes('SSL') || fullMsg.includes('CERT') || causeCode === 'CERT_HAS_EXPIRED') {
+          errorCode = 'ssl_error';
+          statusCode = 502;
         }
-        if (causeCode === 'ECONNREFUSED' || fullMsg.includes('ECONNREFUSED')) {
-          return reply.code(502).send({ error: 'connection_refused', time: elapsed });
-        }
-        if (causeCode === 'ENOTFOUND' || causeCode === 'EAI_AGAIN' || fullMsg.includes('ENOTFOUND') || fullMsg.includes('EAI_AGAIN')) {
-          return reply.code(502).send({ error: 'dns_failure', time: elapsed });
-        }
-        if (fullMsg.includes('certificate') || fullMsg.includes('SSL') || fullMsg.includes('CERT') || causeCode === 'CERT_HAS_EXPIRED') {
-          return reply.code(502).send({ error: 'ssl_error', time: elapsed });
-        }
-        return reply.code(500).send({ error: 'unknown', message: errMsg, time: elapsed });
+
+        logProxy(fastify.log, settings.proxyLogLevel, method, finalUrl, errorCode, elapsed);
+
+        const payload: Record<string, unknown> = { error: errorCode, time: elapsed };
+        if (errorCode === 'unknown') payload.message = errMsg;
+        return reply.code(statusCode).send(payload);
       }
 
       clearTimeout(timeout);
@@ -152,7 +200,15 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         time: elapsed,
       };
 
-      // Insert history (best-effort) + auto-prune oldest entries over 500
+      // Log proxy request
+      logProxy(fastify.log, settings.proxyLogLevel, method, finalUrl, fetchResponse.status, elapsed, {
+        reqHeaderCount: Object.keys(builtHeaders).length,
+        resHeaderCount: Object.keys(responseHeaders).length,
+        reqBodySize: bodyPayload ? Buffer.byteLength(bodyPayload, 'utf8') : 0,
+        resBodySize: size,
+      });
+
+      // Insert history (best-effort) + auto-prune oldest entries over limit
       try {
         const histCol = getHistory();
         const historyEntry: HistoryDocument = {
@@ -169,8 +225,8 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         histCol.insert(historyEntry);
 
         const count = histCol.count();
-        if (count > 500) {
-          const oldest = histCol.chain().simplesort('timestamp').limit(count - 500).data();
+        if (count > settings.historyLimit) {
+          const oldest = histCol.chain().simplesort('timestamp').limit(count - settings.historyLimit).data();
           histCol.remove(oldest);
         }
       } catch (histErr) {

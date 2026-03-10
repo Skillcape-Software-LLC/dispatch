@@ -8,9 +8,11 @@ import { collectionsRoutes } from './routes/collections';
 import { environmentsRoutes } from './routes/environments';
 import { historyRoutes } from './routes/history';
 import { importExportRoutes } from './routes/import-export';
+import { settingsRoutes } from './routes/settings';
 
 async function bootstrap(): Promise<void> {
   const fastify = Fastify({
+    bodyLimit: 10 * 1024 * 1024, // 10 MB
     logger: {
       level: config.logLevel,
       transport:
@@ -18,6 +20,16 @@ async function bootstrap(): Promise<void> {
           ? undefined
           : { target: 'pino-pretty', options: { colorize: true } },
     },
+  });
+
+  // Security headers — disable CSP (would break Monaco editor)
+  await fastify.register(import('@fastify/helmet'), {
+    contentSecurityPolicy: false,
+  });
+
+  // Rate limiting — global: false so only opted-in routes are limited
+  await fastify.register(import('@fastify/rate-limit'), {
+    global: false,
   });
 
   // CORS — only in development (browser hits localhost:4200)
@@ -34,6 +46,13 @@ async function bootstrap(): Promise<void> {
   await fastify.register(environmentsRoutes);
   await fastify.register(historyRoutes);
   await fastify.register(importExportRoutes);
+  await fastify.register(settingsRoutes);
+
+  // Global error handler
+  fastify.setErrorHandler((error, request, reply) => {
+    fastify.log.error(error);
+    reply.status(500).send({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
+  });
 
   // Static file serving + SPA fallback — production only
   if (config.isProduction) {

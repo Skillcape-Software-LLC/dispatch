@@ -8,6 +8,11 @@ services:
     volumes:
       - dispatch-data:/data
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       NODE_ENV: production
       PORT: "3000"

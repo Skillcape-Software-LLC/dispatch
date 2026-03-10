@@ -46,10 +46,11 @@ COPY client/package.json ./client/
 COPY server/package.json ./server/
 
 # Install production deps only
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
-# Copy compiled server
+# Copy compiled server (strip sourcemaps)
 COPY --from=server-builder /build/server/dist ./server/dist
+RUN find server/dist -name '*.map' -delete
 
 # Copy Angular build output into server/public (served as static files)
 COPY --from=client-builder /build/client/dist/client/browser ./server/public

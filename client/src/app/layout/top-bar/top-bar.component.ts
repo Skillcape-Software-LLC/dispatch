@@ -1,7 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EnvironmentService } from '../../core/services/environment.service';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { SettingsModalService } from '../../core/services/settings-modal.service';
+import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import type { Environment } from '../../core/models/environment.model';
 
 @Component({
@@ -14,6 +17,10 @@ import type { Environment } from '../../core/models/environment.model';
 export class TopBarComponent implements OnInit {
   readonly envService = inject(EnvironmentService);
   private readonly modal = inject(EnvEditorModalService);
+  readonly themeService = inject(ThemeService);
+  readonly settingsModal = inject(SettingsModalService);
+  private readonly shortcuts = inject(KeyboardShortcutService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly environments = signal<Environment[]>([]);
   readonly selectedId = signal<string>('');
@@ -30,6 +37,19 @@ export class TopBarComponent implements OnInit {
         }
       }
     });
+
+    this.shortcuts.register('focus-env', {
+      key: 'e',
+      ctrl: true,
+      description: 'Focus environment selector',
+      group: 'NAVIGATION',
+      action: () => {
+        const el = document.querySelector<HTMLSelectElement>('.env-select');
+        el?.focus();
+      },
+    });
+
+    this.destroyRef.onDestroy(() => this.shortcuts.unregister('focus-env'));
   }
 
   onEnvChange(id: string): void {

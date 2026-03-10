@@ -1,4 +1,8 @@
 <div class="top-bar">
+  <span class="wordmark">DISPATCH</span>
+
+  <div class="top-bar-spacer"></div>
+
   <div class="env-selector">
     <i class="bi bi-layers env-icon"></i>
     <select
@@ -13,6 +17,20 @@
     </select>
     <button class="btn-icon" title="Manage environments" (click)="openEditor()">
       <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+
+  <div class="top-bar-actions">
+    <button class="btn-icon" (click)="themeService.toggle()"
+            [title]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+      @if (themeService.theme() === 'dark') {
+        <i class="bi bi-sun"></i>
+      } @else {
+        <i class="bi bi-moon-stars-fill"></i>
+      }
+    </button>
+    <button class="btn-icon" title="Settings" (click)="settingsModal.open()">
+      <i class="bi bi-sliders2"></i>
     </button>
   </div>
 </div>

@@ -8,12 +8,14 @@ import type {
   EnvironmentDocument,
   HistoryDocument,
 } from './types';
+import type { AppSettings } from '../utils/settings';
 
 let db: Loki;
 let requests: Collection<RequestDocument>;
 let collections: Collection<CollectionDocument>;
 let environments: Collection<EnvironmentDocument>;
 let history: Collection<HistoryDocument>;
+let settings: Collection<AppSettings & { _key: string }>;
 
 let dbReady = false;
 const readyCallbacks: Array<() => void> = [];
@@ -70,6 +72,9 @@ export function initDatabase(): Promise<void> {
           'id' as keyof HistoryDocument,
           'timestamp' as keyof HistoryDocument,
         ]);
+        settings = resolveCollection<AppSettings & { _key: string }>('settings', [
+          '_key' as keyof (AppSettings & { _key: string }),
+        ]);
 
         dbReady = true;
         for (const cb of readyCallbacks) cb();
@@ -109,4 +114,8 @@ export function getEnvironments(): Collection<EnvironmentDocument> {
 
 export function getHistory(): Collection<HistoryDocument> {
   return history;
+}
+
+export function getSettings(): Collection<AppSettings & { _key: string }> {
+  return settings;
 }

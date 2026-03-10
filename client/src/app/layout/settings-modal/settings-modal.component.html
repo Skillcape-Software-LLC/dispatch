@@ -1,0 +1,123 @@
+@if (modal.isOpen()) {
+  <div class="settings-backdrop" (click)="cancel()"></div>
+  <div class="settings-modal" role="dialog" aria-modal="true">
+    <div class="settings-header">
+      <span class="settings-title">SETTINGS</span>
+      <button class="btn-close-modal" (click)="cancel()" title="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="settings-nav">
+      <button class="settings-tab" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">General</button>
+      <button class="settings-tab" [class.active]="activeTab() === 'network'" (click)="activeTab.set('network')">Network</button>
+      <button class="settings-tab" [class.active]="activeTab() === 'data'" (click)="activeTab.set('data')">Data</button>
+    </div>
+
+    <div class="settings-body">
+
+      @if (activeTab() === 'general') {
+        <div class="settings-section">
+          <div class="section-title">GENERAL</div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="defaultContentType">Default Content-Type</label>
+              <span class="setting-desc">Applied to new requests automatically</span>
+            </div>
+            <select id="defaultContentType" class="setting-select" [(ngModel)]="draft.defaultContentType">
+              <option value="application/json">application/json</option>
+              <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+              <option value="text/plain">text/plain</option>
+              <option value="multipart/form-data">multipart/form-data</option>
+            </select>
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="requestTimeout">Request Timeout</label>
+              <span class="setting-desc">Maximum wait time for a response</span>
+            </div>
+            <div class="setting-number-group">
+              <input id="requestTimeout" type="number" class="setting-input" min="1000" max="300000" step="1000"
+                     [(ngModel)]="draft.requestTimeoutMs">
+              <span class="setting-unit">ms</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'network') {
+        <div class="settings-section">
+          <div class="section-title">NETWORK</div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="sslVerification">SSL Verification</label>
+              <span class="setting-desc">Reject requests with invalid certificates</span>
+            </div>
+            <label class="toggle-switch">
+              <input id="sslVerification" type="checkbox" [(ngModel)]="draft.sslVerification">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="proxyUrl">HTTP Proxy URL</label>
+              <span class="setting-desc">Route requests through a proxy (e.g. http://proxy:8080)</span>
+            </div>
+            <input id="proxyUrl" type="text" class="setting-input wide" placeholder="http://proxy:8080"
+                   [(ngModel)]="draft.proxyUrl">
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'data') {
+        <div class="settings-section">
+          <div class="section-title">DATA</div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label" for="historyLimit">History Limit</label>
+              <span class="setting-desc">Maximum number of request history entries to keep</span>
+            </div>
+            <div class="setting-number-group">
+              <input id="historyLimit" type="number" class="setting-input" min="1" max="5000" step="100"
+                     [(ngModel)]="draft.historyLimit">
+              <span class="setting-unit">entries</span>
+            </div>
+          </div>
+
+          <div class="setting-divider"></div>
+
+          <div class="setting-row">
+            <div class="setting-label-group">
+              <label class="setting-label">Clear History</label>
+              <span class="setting-desc">Permanently delete all request history</span>
+            </div>
+            <button class="btn-danger" [class.confirm]="clearConfirm()" (click)="clearHistory()">
+              @if (clearConfirm()) {
+                <i class="bi bi-exclamation-triangle"></i> Confirm Clear
+              } @else {
+                <i class="bi bi-trash3"></i> Clear History
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <div class="settings-footer">
+      <button class="btn-cancel" (click)="cancel()">Cancel</button>
+      <button class="btn-save" [disabled]="saving()" (click)="save()">
+        @if (saving()) { Saving… } @else { Save Changes }
+      </button>
+    </div>
+  </div>
+}
