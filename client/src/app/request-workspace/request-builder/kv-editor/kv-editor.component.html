@@ -1,0 +1,42 @@
+<div class="kv-editor">
+  <div class="kv-header">
+    <span class="col-check"></span>
+    <span class="col-key">Key</span>
+    <span class="col-val">Value</span>
+    <span class="col-del"></span>
+  </div>
+
+  <div class="kv-rows">
+    @for (row of rows(); track trackById($index, row)) {
+      <div class="kv-row" [class.disabled]="!row.enabled">
+        <input
+          type="checkbox"
+          class="col-check form-check-input"
+          [checked]="row.enabled"
+          (change)="toggleRow(row.id)"
+        />
+        <input
+          type="text"
+          class="col-key kv-input"
+          [placeholder]="placeholder()"
+          [value]="row.key"
+          (input)="updateKey(row.id, $any($event.target).value)"
+        />
+        <input
+          type="text"
+          class="col-val kv-input"
+          [placeholder]="valuePlaceholder()"
+          [value]="row.value"
+          (input)="updateValue(row.id, $any($event.target).value)"
+        />
+        <button class="col-del btn-del" (click)="removeRow(row.id)" title="Remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    }
+  </div>
+
+  <button class="btn-add" (click)="addRow()">
+    <i class="bi bi-plus"></i> Add
+  </button>
+</div>

@@ -1,0 +1,98 @@
+<div class="auth-editor">
+  <div class="auth-type-row">
+    <label class="auth-label">Type</label>
+    <select
+      class="form-select auth-select"
+      [ngModel]="auth().type"
+      (ngModelChange)="setType($event)"
+    >
+      <option value="none">No Auth</option>
+      <option value="bearer">Bearer Token</option>
+      <option value="basic">Basic Auth</option>
+      <option value="apikey">API Key</option>
+    </select>
+  </div>
+
+  @if (auth().type === 'bearer') {
+    <div class="auth-fields">
+      <div class="auth-field">
+        <label class="auth-label">Token</label>
+        <input
+          type="text"
+          class="auth-input font-mono"
+          placeholder="Enter bearer token"
+          [ngModel]="auth().bearer.token"
+          (ngModelChange)="setBearerToken($event)"
+        />
+      </div>
+    </div>
+  }
+
+  @if (auth().type === 'basic') {
+    <div class="auth-fields">
+      <div class="auth-field">
+        <label class="auth-label">Username</label>
+        <input
+          type="text"
+          class="auth-input"
+          placeholder="Username"
+          [ngModel]="auth().basic.username"
+          (ngModelChange)="setBasicUsername($event)"
+        />
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input
+          type="password"
+          class="auth-input"
+          placeholder="Password"
+          [ngModel]="auth().basic.password"
+          (ngModelChange)="setBasicPassword($event)"
+        />
+      </div>
+    </div>
+  }
+
+  @if (auth().type === 'apikey') {
+    <div class="auth-fields">
+      <div class="auth-field">
+        <label class="auth-label">Key</label>
+        <input
+          type="text"
+          class="auth-input font-mono"
+          placeholder="X-API-Key"
+          [ngModel]="auth().apikey.key"
+          (ngModelChange)="setApiKey($event)"
+        />
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Value</label>
+        <input
+          type="text"
+          class="auth-input font-mono"
+          placeholder="Key value"
+          [ngModel]="auth().apikey.value"
+          (ngModelChange)="setApiValue($event)"
+        />
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Add to</label>
+        <select
+          class="form-select auth-select"
+          [ngModel]="auth().apikey.in"
+          (ngModelChange)="setApiIn($event)"
+        >
+          <option value="header">Header</option>
+          <option value="query">Query Param</option>
+        </select>
+      </div>
+    </div>
+  }
+
+  @if (auth().type === 'none') {
+    <div class="auth-none">
+      <i class="bi bi-shield-slash"></i>
+      <span>No authentication</span>
+    </div>
+  }
+</div>

@@ -1,0 +1,17 @@
+services:
+  dispatch:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - dispatch-data:/data
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATA_DIR: /data
+
+volumes:
+  dispatch-data:

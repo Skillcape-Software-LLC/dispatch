@@ -1,0 +1,94 @@
+<div class="response-viewer">
+  <!-- Loading state -->
+  @if (state.isLoading()) {
+    <div class="response-state loading-state">
+      <div class="spinner"></div>
+      <span>Sending request…</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @else if (state.requestError()) {
+    <div class="response-state error-state">
+      <div class="error-icon">
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+      <div class="error-content">
+        <div class="error-code">{{ state.requestError()!.error }}</div>
+        <div class="error-message">{{ errorMessage(state.requestError()) }}</div>
+        @if (state.requestError()!.time) {
+          <div class="error-meta">{{ formatTime(state.requestError()!.time) }}</div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Response state -->
+  @else if (state.lastResponse()) {
+    <div class="response-header">
+      <div class="response-meta">
+        <span class="status-badge" [ngClass]="statusClass()">
+          {{ state.lastResponse()!.status }} {{ state.lastResponse()!.statusText }}
+        </span>
+        <span class="meta-chip">{{ formatTime(state.lastResponse()!.time) }}</span>
+        <span class="meta-chip">{{ formatSize(state.lastResponse()!.size) }}</span>
+      </div>
+
+      <div class="response-tabs">
+        <button
+          class="resp-tab"
+          [class.active]="activeTab() === 'body'"
+          (click)="activeTab.set('body')"
+        >Body</button>
+        <button
+          class="resp-tab"
+          [class.active]="activeTab() === 'headers'"
+          (click)="activeTab.set('headers')"
+        >
+          Headers
+          <span class="resp-tab-count">{{ responseHeaders().length }}</span>
+        </button>
+      </div>
+
+      <button class="btn-copy" (click)="copyBody()" [class.copied]="copied()">
+        @if (copied()) {
+          <i class="bi bi-check"></i> Copied
+        } @else {
+          <i class="bi bi-clipboard"></i> Copy
+        }
+      </button>
+    </div>
+
+    <div class="response-content">
+      @if (activeTab() === 'body') {
+        <div class="response-body-area">
+          <ngx-monaco-editor
+            class="monaco-host"
+            [options]="editorOptions()"
+            [ngModel]="prettyBody()"
+          />
+        </div>
+      }
+
+      @if (activeTab() === 'headers') {
+        <div class="headers-table">
+          @for (entry of responseHeaders(); track entry[0]) {
+            <div class="header-row">
+              <span class="header-key">{{ entry[0] }}</span>
+              <span class="header-value">{{ entry[1] }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else {
+    <div class="response-state empty-state">
+      <i class="bi bi-arrow-up-circle"></i>
+      <span>Send a request to see the response</span>
+      <span class="empty-hint"><kbd>Ctrl+Enter</kbd> to send</span>
+    </div>
+  }
+</div>

@@ -1,0 +1,11 @@
+<div class="workspace-split">
+  <div class="pane request-pane" [style.flex-basis.%]="splitPercent()">
+    <app-request-builder />
+  </div>
+
+  <div class="resize-handle" (mousedown)="onResizeMouseDown($event)"></div>
+
+  <div class="pane response-pane" [style.flex-basis.%]="100 - splitPercent()">
+    <app-response-viewer />
+  </div>
+</div>

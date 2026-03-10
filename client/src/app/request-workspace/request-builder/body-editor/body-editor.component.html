@@ -1,0 +1,34 @@
+<div class="body-editor">
+  <div class="mode-pills">
+    @for (mode of modes; track mode) {
+      <button
+        class="mode-pill"
+        [class.active]="body().mode === mode"
+        (click)="setMode(mode)"
+      >{{ mode }}</button>
+    }
+  </div>
+
+  <div class="body-content">
+    @if (body().mode === 'none') {
+      <div class="body-empty">
+        <i class="bi bi-dash-circle"></i>
+        <span>No body</span>
+      </div>
+    } @else if (body().mode === 'json' || body().mode === 'raw') {
+      <div class="editor-area">
+        <ngx-monaco-editor
+          class="monaco-host"
+          [options]="editorOptions()"
+          [ngModel]="body().content"
+          (ngModelChange)="setContent($event)"
+        />
+      </div>
+    } @else {
+      <div class="body-unsupported">
+        <i class="bi bi-tools"></i>
+        <span>{{ body().mode }} is not yet supported</span>
+      </div>
+    }
+  </div>
+</div>

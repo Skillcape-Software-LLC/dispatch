@@ -1,0 +1,120 @@
+<aside class="app-sidebar">
+
+  <!-- Header -->
+  <div class="sidebar-header d-flex align-items-center gap-2 px-3 py-2">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2L11 13"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+      </svg>
+    </div>
+    <span class="logo-text">Dispatch</span>
+  </div>
+
+  <!-- Collections / History tabs -->
+  <ul class="nav sidebar-nav">
+    <li class="nav-item flex-fill">
+      <button class="nav-link w-100" [class.active]="activeTab === 'collections'"
+              (click)="setTab('collections')">Collections</button>
+    </li>
+    <li class="nav-item flex-fill">
+      <button class="nav-link w-100" [class.active]="activeTab === 'history'"
+              (click)="setTab('history')">History</button>
+    </li>
+  </ul>
+
+  <!-- Search -->
+  <div class="sidebar-search position-relative px-2 py-2">
+    <i class="bi bi-search search-icon"></i>
+    <input type="text" class="form-control form-control-sm" placeholder="Search requests...">
+  </div>
+
+  <!-- Tree -->
+  <div class="tree-scroll px-2">
+    @if (activeTab === 'collections') {
+      <div class="list-group list-group-flush tree-list">
+        <!-- User Service collection -->
+        <a class="list-group-item collection" href="#" (click)="$event.preventDefault()">
+          <i class="bi bi-chevron-down tree-chevron"></i>
+          <i class="bi bi-folder2 tree-icon"></i>
+          <span class="tree-name">User Service</span>
+        </a>
+        <div class="ps-3">
+          <a class="list-group-item folder" href="#" (click)="$event.preventDefault()">
+            <i class="bi bi-chevron-down tree-chevron"></i>
+            <i class="bi bi-folder2 tree-icon"></i>
+            <span class="tree-name">Auth</span>
+          </a>
+          <div class="ps-3">
+            <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+              <span class="tree-indent"></span>
+              <span class="badge badge-method badge-post">POST</span>
+              <span class="tree-name">Login</span>
+            </a>
+            <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+              <span class="tree-indent"></span>
+              <span class="badge badge-method badge-post">POST</span>
+              <span class="tree-name">Register</span>
+            </a>
+          </div>
+          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+            <span class="tree-indent"></span>
+            <span class="badge badge-method badge-get">GET</span>
+            <span class="tree-name">Get All Users</span>
+          </a>
+          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+            <span class="tree-indent"></span>
+            <span class="badge badge-method badge-get">GET</span>
+            <span class="tree-name">Get User by ID</span>
+          </a>
+          <a class="list-group-item active" href="#" (click)="$event.preventDefault()">
+            <span class="tree-indent"></span>
+            <span class="badge badge-method badge-post">POST</span>
+            <span class="tree-name">Create User</span>
+          </a>
+          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+            <span class="tree-indent"></span>
+            <span class="badge badge-method badge-put">PUT</span>
+            <span class="tree-name">Update User</span>
+          </a>
+          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
+            <span class="tree-indent"></span>
+            <span class="badge badge-method badge-del">DEL</span>
+            <span class="tree-name">Delete User</span>
+          </a>
+        </div>
+        <a class="list-group-item collection mt-1" href="#" (click)="$event.preventDefault()">
+          <i class="bi bi-chevron-right tree-chevron"></i>
+          <i class="bi bi-folder2 tree-icon"></i>
+          <span class="tree-name">Payment Service</span>
+        </a>
+        <a class="list-group-item collection mt-1" href="#" (click)="$event.preventDefault()">
+          <i class="bi bi-chevron-right tree-chevron"></i>
+          <i class="bi bi-folder2 tree-icon"></i>
+          <span class="tree-name">Notification Service</span>
+        </a>
+      </div>
+    } @else {
+      <div class="history-empty d-flex flex-column align-items-center justify-content-center py-5 text-center">
+        <i class="bi bi-clock-history" style="font-size: 1.5rem; color: var(--d-text-tertiary); margin-bottom: 0.5rem;"></i>
+        <p class="mb-0" style="font-size: 0.75rem; color: var(--d-text-tertiary);">No history yet</p>
+        <p style="font-size: 0.6875rem; color: var(--d-text-tertiary); margin-top: 0.25rem;">Sent requests will appear here</p>
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer d-flex gap-1 px-2 py-2">
+    <button class="btn btn-sm sidebar-action">
+      <i class="bi bi-plus"></i> New
+    </button>
+    <button class="btn btn-sm sidebar-action">
+      <i class="bi bi-upload"></i> Import
+    </button>
+    <button class="btn btn-sm sidebar-action ms-auto">
+      <i class="bi bi-gear"></i>
+    </button>
+  </div>
+
+</aside>

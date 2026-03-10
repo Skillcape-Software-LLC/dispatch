@@ -1,0 +1,123 @@
+<div class="request-builder">
+  <!-- URL bar -->
+  <div class="url-bar">
+    <!-- Method dropdown -->
+    <div class="method-dropdown" [class.open]="showMethodMenu()">
+      <button
+        class="btn-method"
+        [ngClass]="methodClass(state.currentRequest().method)"
+        (click)="toggleMethodMenu()"
+      >
+        {{ state.currentRequest().method }}
+        <i class="bi bi-chevron-down method-caret"></i>
+      </button>
+
+      @if (showMethodMenu()) {
+        <div class="method-menu">
+          @for (m of methods; track m) {
+            <button
+              class="method-item"
+              [ngClass]="methodClass(m)"
+              (click)="selectMethod(m)"
+            >{{ m }}</button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- URL input -->
+    <input
+      type="text"
+      class="url-input"
+      placeholder="https://api.example.com/endpoint"
+      [value]="state.currentRequest().url"
+      (input)="onUrlChange($any($event.target).value)"
+    />
+
+    <!-- Send / Cancel button -->
+    @if (state.isLoading()) {
+      <button class="btn-cancel" (click)="state.sendRequest()">
+        <i class="bi bi-stop-circle"></i> Cancel
+      </button>
+    } @else {
+      <button class="btn-send" (click)="state.sendRequest()">
+        <i class="bi bi-send"></i> Send
+      </button>
+    }
+  </div>
+
+  <!-- Config nav tabs -->
+  <div class="config-nav">
+    <button
+      class="config-tab"
+      [class.active]="activeTab() === 'params'"
+      (click)="activeTab.set('params')"
+    >
+      Params
+      @if (state.enabledParamCount() > 0) {
+        <span class="tab-badge">{{ state.enabledParamCount() }}</span>
+      }
+    </button>
+    <button
+      class="config-tab"
+      [class.active]="activeTab() === 'headers'"
+      (click)="activeTab.set('headers')"
+    >
+      Headers
+      @if (state.enabledHeaderCount() > 0) {
+        <span class="tab-badge">{{ state.enabledHeaderCount() }}</span>
+      }
+    </button>
+    <button
+      class="config-tab"
+      [class.active]="activeTab() === 'body'"
+      (click)="activeTab.set('body')"
+    >
+      Body
+    </button>
+    <button
+      class="config-tab"
+      [class.active]="activeTab() === 'auth'"
+      (click)="activeTab.set('auth')"
+    >
+      Auth
+      @if (state.currentRequest().auth.type !== 'none') {
+        <span class="tab-badge auth-badge">
+          <i class="bi bi-shield-check"></i>
+        </span>
+      }
+    </button>
+  </div>
+
+  <!-- Tab content -->
+  <div class="config-content">
+    @if (activeTab() === 'params') {
+      <app-kv-editor
+        [rows]="state.currentRequest().params"
+        (rowsChange)="onParamsChange($event)"
+        placeholder="Parameter"
+        valuePlaceholder="Value"
+      />
+    }
+    @if (activeTab() === 'headers') {
+      <app-kv-editor
+        [rows]="state.currentRequest().headers"
+        (rowsChange)="onHeadersChange($event)"
+        placeholder="Header"
+        valuePlaceholder="Value"
+      />
+    }
+    @if (activeTab() === 'body') {
+      <app-body-editor
+        [body]="state.currentRequest().body"
+        (bodyChange)="onBodyChange($event)"
+      />
+    }
+    @if (activeTab() === 'auth') {
+      <app-auth-editor
+        [auth]="state.currentRequest().auth"
+        (authChange)="onAuthChange($event)"
+      />
+    }
+  </div>
+</div>

@@ -1,0 +1,89 @@
+/* ── Vendor imports ── */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+
+/* ── Bootstrap Dark Theme Override ── */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0B0C0F;
+  --bs-body-color: #E8E9ED;
+  --bs-secondary-bg: #12141A;
+  --bs-tertiary-bg: #1A1D25;
+  --bs-body-font-family: 'Instrument Sans', -apple-system, sans-serif;
+  --bs-border-color: rgba(255, 255, 255, 0.10);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Dispatch Design Tokens ── */
+:root {
+  /* Surfaces */
+  --d-surface-000: #0B0C0F;
+  --d-surface-100: #12141A;
+  --d-surface-200: #1A1D25;
+  --d-surface-300: #222630;
+  --d-surface-400: #2C3040;
+  --d-surface-500: #3A3F52;
+
+  /* Text */
+  --d-text-primary: #E8E9ED;
+  --d-text-secondary: #9498A8;
+  --d-text-tertiary: #5C6178;
+  --d-text-inverse: #0B0C0F;
+
+  /* Amber (brand) */
+  --d-amber-400: #F5A623;
+  --d-amber-500: #E88A2E;
+  --d-amber-600: #C46D1A;
+  --d-amber-glow: rgba(245, 166, 35, 0.12);
+  --d-amber-border: rgba(245, 166, 35, 0.25);
+
+  /* HTTP Method colors */
+  --d-method-get: #4ADE80;
+  --d-method-get-bg: rgba(74, 222, 128, 0.12);
+  --d-method-post: #F5A623;
+  --d-method-post-bg: rgba(245, 166, 35, 0.12);
+  --d-method-put: #60A5FA;
+  --d-method-put-bg: rgba(96, 165, 250, 0.12);
+  --d-method-patch: #C084FC;
+  --d-method-patch-bg: rgba(192, 132, 252, 0.12);
+  --d-method-delete: #F87171;
+  --d-method-delete-bg: rgba(248, 113, 113, 0.12);
+
+  /* Status code colors */
+  --d-status-2xx: #4ADE80;
+  --d-status-2xx-bg: rgba(74, 222, 128, 0.12);
+  --d-status-3xx: #60A5FA;
+  --d-status-3xx-bg: rgba(96, 165, 250, 0.12);
+  --d-status-4xx: #FBBF24;
+  --d-status-4xx-bg: rgba(251, 191, 36, 0.12);
+  --d-status-5xx: #F87171;
+  --d-status-5xx-bg: rgba(248, 113, 113, 0.12);
+
+  /* Typography */
+  --d-font-ui: 'Instrument Sans', -apple-system, sans-serif;
+  --d-font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--d-font-ui);
+  background-color: var(--d-surface-000);
+  color: var(--d-text-primary);
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.font-mono {
+  font-family: var(--d-font-mono) !important;
+}

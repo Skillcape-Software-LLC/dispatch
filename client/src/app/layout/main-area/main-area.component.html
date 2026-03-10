@@ -1,0 +1,37 @@
+<main class="app-main">
+  <!-- Tabs bar -->
+  <div class="tabs-bar d-flex align-items-center gap-1 px-3">
+    <div class="tab active">
+      <span class="badge badge-method" [ngClass]="'badge-' + state.currentRequest().method.toLowerCase()">
+        {{ state.currentRequest().method }}
+      </span>
+      <span class="tab-name">New Request</span>
+    </div>
+    <button class="btn-tab-new" title="New tab (Ctrl+N)">
+      <i class="bi bi-plus"></i>
+    </button>
+  </div>
+
+  <!-- Workspace -->
+  <div class="workspace">
+    <app-request-workspace />
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar d-flex align-items-center gap-3 px-3 py-1">
+    <span class="d-flex align-items-center gap-1">
+      <span class="status-dot"></span> Ready
+    </span>
+    <span class="ms-auto d-flex align-items-center gap-3">
+      <span class="d-flex align-items-center gap-1">
+        <kbd>Ctrl+Enter</kbd> Send
+      </span>
+      <span class="d-flex align-items-center gap-1">
+        <kbd>Ctrl+S</kbd> Save
+      </span>
+      <span class="d-flex align-items-center gap-1">
+        <kbd>Ctrl+N</kbd> New
+      </span>
+    </span>
+  </div>
+</main>

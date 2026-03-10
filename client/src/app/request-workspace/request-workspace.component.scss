@@ -1,0 +1,43 @@
+.workspace-split {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pane {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  app-request-builder,
+  app-response-viewer {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+.resize-handle {
+  height: 5px;
+  background: var(--d-surface-000);
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    width: 36px;
+    height: 3px;
+    background: var(--d-surface-500);
+    border-radius: 2px;
+    transition: background 120ms;
+  }
+
+  &:hover::after {
+    background: var(--d-amber-400);
+  }
+}

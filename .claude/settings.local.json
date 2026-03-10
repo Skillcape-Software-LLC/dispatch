@@ -1,7 +1,32 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "Bash(node --version && npm --version && ng version 2>/dev/null | head -5 || echo \"ng not found globally\")",
+      "Bash(ng version:*)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm install 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm install --save-dev pino-pretty 2>&1 | tail -3)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && ng new client --routing=false --style=scss --standalone --skip-git --skip-tests --package-manager=npm 2>&1 | tail -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npm install bootstrap@5.3.3 bootstrap-icons@1.11.3 2>&1 | tail -3)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && npm install 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration=development 2>&1 | tail -20)",
+      "Bash(pkill -f \"tsx watch\" 2>/dev/null || true\nsleep 1\necho \"Cleared\")",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && docker compose build 2>&1 | tail -30)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npx tsc --noEmit 2>&1)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && docker compose build 2>&1 | tail -15)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && docker compose up -d 2>&1\nsleep 5\necho \"=== Health check ===\"\ncurl -s http://localhost:3000/api/health\necho \"\"\necho \"=== Root HTML ===\"\ncurl -s http://localhost:3000/ | head -5\ndocker compose down 2>&1 | tail -3)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && docker compose up -d && sleep 6 && curl -s http://localhost:3000/api/health && echo \"\" && curl -s http://localhost:3000/ | grep -o '<title>[^<]*</title>' && docker compose down)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npm install ngx-monaco-editor-v2 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npm install ngx-monaco-editor-v2 --legacy-peer-deps 2>&1 | tail -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npm install monaco-editor --legacy-peer-deps 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm run build 2>&1 | tail -20)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | tail -40)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm run build 2>&1 | tail -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | tail -30)",
+      "Bash(curl -s -X POST http://localhost:4000/api/proxy \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"method\":\"GET\",\"url\":\"http://localhost:9999\",\"headers\":[],\"params\":[],\"body\":{\"mode\":\"none\",\"content\":\"\"},\"auth\":{\"type\":\"none\"}}')",
+      "Bash(node -e \"\nfetch\\('http://localhost:9999'\\).catch\\(err => {\n  console.log\\('name:', err.name\\);\n  console.log\\('message:', err.message\\);\n  console.log\\('cause:', err.cause\\);\n  console.log\\('cause.code:', err.cause?.code\\);\n  console.log\\('cause.message:', err.cause?.message\\);\n}\\);\n\")",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm run build 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|warning|complete|Building\" | tail -10)"
     ]
   }
 }
