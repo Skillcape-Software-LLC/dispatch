@@ -1,8 +1,6 @@
 services:
   dispatch:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    image: ghcr.io/skillcape-software-llc/dispatch:v1.1.2
     ports:
       - "3000:3000"
     volumes:

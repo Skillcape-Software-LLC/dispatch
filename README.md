@@ -16,17 +16,31 @@ Lightweight, containerized HTTP testing tool. The anti-Postman.
 
 ## Quick Start
 
-```bash
-docker run -p 3000:3000 -v dispatch-data:/data ghcr.io/skillcape-software-llc/dispatch:latest
+1. Create a `docker-compose.yml` (or use the one included in this repo):
+
+```yaml
+services:
+  dispatch:
+    image: ghcr.io/skillcape-software-llc/dispatch:v1.1.2
+    ports:
+      - "3000:3000"
+    volumes:
+      - dispatch-data:/data
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+
+volumes:
+  dispatch-data:
 ```
 
-Or with Docker Compose:
+2. Run it:
 
 ```bash
-docker compose up
+docker compose up -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+3. Open [http://localhost:3000](http://localhost:3000)
 
 ## Development
 
@@ -69,7 +83,7 @@ Settings can also be configured in-app via the settings modal (gear icon), inclu
 Data is stored in `/data/dispatch.db.json` inside the container. Mount a volume to persist across restarts:
 
 ```bash
-docker run -p 3000:3000 -v dispatch-data:/data dispatch
+docker run -p 3000:3000 -v dispatch-data:/data ghcr.io/skillcape-software-llc/dispatch:v1.1.2
 ```
 
 ### Backup & Restore
@@ -95,5 +109,5 @@ The Docker Compose file includes log rotation by default (10 MB, 3 files). For s
 ```bash
 docker run -p 3000:3000 -v dispatch-data:/data \
   --log-opt max-size=10m --log-opt max-file=3 \
-  dispatch
+  ghcr.io/skillcape-software-llc/dispatch:v1.1.2
 ```
