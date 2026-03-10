@@ -17,7 +17,7 @@ Lightweight, containerized HTTP testing tool. The anti-Postman.
 ## Quick Start
 
 ```bash
-docker run -p 3000:3000 -v dispatch-data:/data ghcr.io/skillcape-software/dispatch:latest
+docker run -p 3000:3000 -v dispatch-data:/data ghcr.io/skillcape-software-llc/dispatch:latest
 ```
 
 Or with Docker Compose:
