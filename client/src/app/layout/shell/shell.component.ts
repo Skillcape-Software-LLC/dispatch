@@ -14,6 +14,7 @@ import { SubscribeModalComponent } from '../subscribe-modal/subscribe-modal.comp
 import { PullPreviewModalComponent } from '../pull-preview-modal/pull-preview-modal.component';
 import { ChannelInfoModalComponent } from '../channel-info-modal/channel-info-modal.component';
 import { SettingsService } from '../../core/services/settings.service';
+import { SwUpdateService } from '../../core/services/sw-update.service';
 
 const STORAGE_WIDTH = 'dispatch-sidebar-width';
 const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
@@ -34,6 +35,7 @@ const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
 })
 export class ShellComponent implements OnInit {
   private readonly settingsService = inject(SettingsService);
+  private readonly swUpdateService = inject(SwUpdateService);
 
   readonly sidebarWidth = signal(260);
   readonly sidebarCollapsed = signal(false);
@@ -56,6 +58,9 @@ export class ShellComponent implements OnInit {
 
     // Load settings on boot
     this.settingsService.load().subscribe();
+
+    // Listen for service worker updates
+    this.swUpdateService.init();
   }
 
   startResize(e: MouseEvent): void {

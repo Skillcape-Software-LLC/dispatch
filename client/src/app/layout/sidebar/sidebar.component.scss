@@ -70,7 +70,7 @@
     text-align: center;
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--d-text-tertiary);
+    color: var(--d-text-secondary);
     border: none;
     border-bottom: 2px solid transparent;
     border-radius: 0;
@@ -79,7 +79,7 @@
     cursor: pointer;
     transition: all 120ms ease;
 
-    &:hover { color: var(--d-text-secondary); }
+    &:hover { color: var(--d-text-primary); }
     &.active {
       color: var(--d-amber-400);
       border-bottom-color: var(--d-amber-400);
@@ -167,6 +167,11 @@
   flex-shrink: 0;
 }
 
+.collection-toggle .tree-icon {
+  color: var(--d-amber-400);
+  opacity: 0.8;
+}
+
 .tree-indent {
   width: 14px;
   display: inline-block;
@@ -228,7 +233,9 @@
   padding: 0 !important;
   gap: 0;
   position: relative;
+  margin-top: 0.25rem;
 
+  &:first-child { margin-top: 0; }
   &:hover .row-actions { opacity: 1; }
   &.is-renaming { padding: 0.25rem 0.5rem !important; }
 }
@@ -307,7 +314,7 @@
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
-  opacity: 0;
+  opacity: 0.35;
   transition: opacity 120ms;
   padding-right: 0.25rem;
 }

@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
+    "@angular/service-worker": "^19.2.19",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "monaco-editor": "^0.55.1",

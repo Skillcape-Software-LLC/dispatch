@@ -37,7 +37,7 @@
   height: 30px;
   background: none;
   border: none;
-  color: var(--d-text-tertiary);
+  color: var(--d-text-secondary);
   border-radius: 0.375rem;
   cursor: pointer;
   font-size: 0.875rem;
@@ -46,5 +46,12 @@
   &:hover {
     background: var(--d-surface-300);
     color: var(--d-text-primary);
+  }
+
+  &.btn-icon-central {
+    margin-left: 0.25rem;
+    padding-left: 0.375rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 0 0.375rem 0.375rem 0;
   }
 }
