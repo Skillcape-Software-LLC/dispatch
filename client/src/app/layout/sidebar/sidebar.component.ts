@@ -34,7 +34,7 @@ const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   private readonly collectionService = inject(CollectionService);
-  private readonly tabs = inject(TabService);
+  readonly tabs = inject(TabService);
   private readonly toast = inject(ToastService);
   private readonly historyService = inject(HistoryService);
   private readonly saveAsModal = inject(SaveAsModalService);
@@ -55,6 +55,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly renamingId = signal<string | null>(null);
   newCollectionName = '';
   renameValue = '';
+
+  // Request rename
+  readonly renamingRequestId = signal<string | null>(null);
+  renameRequestValue = '';
+
+  // Delete confirmations
+  readonly confirmingDeleteCollectionId = signal<string | null>(null);
+  readonly confirmingDeleteRequestId = signal<string | null>(null);
 
   // History
   readonly historyEntries = signal<HistoryEntry[]>([]);
@@ -106,6 +114,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   private historyRefreshSub?: Subscription;
   private collectionsChangedSub?: Subscription;
+  private requestUpdatedSub?: Subscription;
 
   ngOnInit(): void {
     this.loadCollections();
@@ -117,11 +126,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.collectionsChangedSub = this.importExportService.collectionsChanged$.subscribe(() => {
       this.loadCollections();
     });
+    this.requestUpdatedSub = this.collectionService.requestUpdated$.subscribe((collectionId) => {
+      if (this.isExpanded(collectionId)) {
+        this.loadRequests(collectionId);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.historyRefreshSub?.unsubscribe();
     this.collectionsChangedSub?.unsubscribe();
+    this.requestUpdatedSub?.unsubscribe();
   }
 
   setTab(tab: 'collections' | 'history'): void {
@@ -169,6 +184,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   openSavedRequest(req: SavedRequest): void {
+    // If already open, just focus that tab
+    const existing = this.tabs.tabs().find((t) => t.savedRequestId === req.id);
+    if (existing) {
+      this.tabs.activateTab(existing.id);
+      return;
+    }
+
     const freshRequest = {
       ...defaultActiveRequest(),
       method: req.method as any,
@@ -244,6 +266,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.renamingId.set(null);
   }
 
+  promptDeleteCollection(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingDeleteCollectionId.set(id);
+  }
+
+  cancelDeleteCollection(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingDeleteCollectionId.set(null);
+  }
+
   deleteCollection(id: string, event: MouseEvent): void {
     event.stopPropagation();
     this.collectionService.deleteCollection(id).subscribe({
@@ -255,9 +287,47 @@ export class SidebarComponent implements OnInit, OnDestroy {
         const set = new Set(this.expandedIds());
         set.delete(id);
         this.expandedIds.set(set);
+        this.confirmingDeleteCollectionId.set(null);
       },
       error: () => this.toast.show('Failed to delete collection', 'error'),
     });
+  }
+
+  startRenameRequest(req: SavedRequest, event: MouseEvent): void {
+    event.stopPropagation();
+    this.renameRequestValue = req.name;
+    this.renamingRequestId.set(req.id);
+  }
+
+  confirmRenameRequest(collectionId: string, requestId: string): void {
+    const name = this.renameRequestValue.trim();
+    if (!name) { this.renamingRequestId.set(null); return; }
+    this.collectionService.updateRequest(collectionId, requestId, { name }).subscribe({
+      next: (updated) => {
+        const map = new Map(this.requestsByCollection());
+        const reqs = (map.get(collectionId) ?? []).map((r) => r.id === requestId ? { ...r, name: updated.name } : r);
+        map.set(collectionId, reqs);
+        this.requestsByCollection.set(map);
+        // Update label on any open tab for this request
+        this.tabs.updateTabLabel(requestId, updated.name);
+        this.renamingRequestId.set(null);
+      },
+      error: () => this.toast.show('Failed to rename request', 'error'),
+    });
+  }
+
+  cancelRenameRequest(): void {
+    this.renamingRequestId.set(null);
+  }
+
+  promptDeleteRequest(requestId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingDeleteRequestId.set(requestId);
+  }
+
+  cancelDeleteRequest(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingDeleteRequestId.set(null);
   }
 
   deleteRequest(collectionId: string, requestId: string, event: MouseEvent): void {
@@ -273,6 +343,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
             c.id === collectionId ? { ...c, requestCount: Math.max(0, c.requestCount - 1) } : c
           )
         );
+        this.confirmingDeleteRequestId.set(null);
       },
       error: () => this.toast.show('Failed to delete request', 'error'),
     });

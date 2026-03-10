@@ -113,6 +113,12 @@ export class TabService {
     );
   }
 
+  updateTabLabel(requestId: string, name: string): void {
+    this.tabs.update((tabs) =>
+      tabs.map((t) => t.savedRequestId === requestId ? { ...t, label: name } : t)
+    );
+  }
+
   markSaved(requestId: string, collectionId: string, snapshot: ActiveRequest, name: string): void {
     this.tabs.update((tabs) =>
       tabs.map((t) =>

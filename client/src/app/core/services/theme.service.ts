@@ -17,8 +17,6 @@ export class ThemeService {
     const saved = localStorage.getItem('dispatch-theme') as 'dark' | 'light' | null;
     if (saved === 'dark' || saved === 'light') {
       this.theme.set(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      this.theme.set('light');
     }
   }
 

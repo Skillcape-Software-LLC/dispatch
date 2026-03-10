@@ -54,6 +54,15 @@
     </div>
   }
 
+  <!-- Unresolved variable warning -->
+  @if (unresolvedVars().length > 0) {
+    <div class="url-unresolved-warning" (click)="envEditorModal.open()" title="Open environment editor">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>Unresolved: {{ unresolvedVarsLabel() }}</span>
+      <a class="warning-fix-link">Fix →</a>
+    </div>
+  }
+
   <!-- Assembled URL preview — always visible to avoid layout shift -->
   <div
     class="url-preview"
@@ -65,7 +74,7 @@
       <span class="url-preview-base">{{ state.currentRequest().url }}</span><!--
       --><span class="url-preview-qs">{{ assembledUrl()!.slice(state.currentRequest().url.length) }}</span>
     } @else {
-      <span class="url-preview-placeholder">Add query params to see the full URL</span>
+      <span class="url-preview-placeholder">&nbsp;</span>
     }
   </div>
 

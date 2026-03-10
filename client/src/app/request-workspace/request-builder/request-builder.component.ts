@@ -4,6 +4,7 @@ import { NgClass } from '@angular/common';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
 import { EnvironmentService } from '../../core/services/environment.service';
+import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
 import { CodegenModalService } from '../../core/services/codegen-modal.service';
 import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth } from '../../core/models/active-request.model';
 import { KvEditorComponent } from './kv-editor/kv-editor.component';
@@ -25,6 +26,7 @@ export class RequestBuilderComponent {
   readonly state = inject(RequestStateService);
   private readonly toast = inject(ToastService);
   private readonly envService = inject(EnvironmentService);
+  readonly envEditorModal = inject(EnvEditorModalService);
   private readonly codegenModal = inject(CodegenModalService);
   readonly methods = HTTP_METHODS;
 
@@ -38,17 +40,49 @@ export class RequestBuilderComponent {
     this.toast.show('URL copied to clipboard');
   }
 
+  private buildVarMap(): Record<string, string> {
+    const map: Record<string, string> = {};
+    for (const v of this.envService.activeEnvironmentVars()) {
+      if (v.enabled) map[v.key] = v.value;
+    }
+    return map;
+  }
+
+  private resolveText(text: string, map: Record<string, string>): string {
+    return text.replace(/\{\{(\w+)\}\}/g, (_, k) => map[k] ?? `{{${k}}}`);
+  }
+
+  /** Variables referenced in the request that have no match in the active environment. */
+  readonly unresolvedVars = computed<string[]>(() => {
+    const req = this.state.currentRequest();
+    const knownVars = new Set(
+      this.envService.activeEnvironmentVars().filter(v => v.enabled).map(v => v.key)
+    );
+
+    const tokens = new Set<string>();
+    const scan = (text: string) => {
+      for (const m of text.match(/\{\{(\w+)\}\}/g) ?? []) tokens.add(m.slice(2, -2));
+    };
+
+    scan(req.url);
+    for (const h of req.headers) { if (h.enabled) { scan(h.key); scan(h.value); } }
+    for (const p of req.params) { if (p.enabled) { scan(p.key); scan(p.value); } }
+    if (req.body.content) scan(req.body.content);
+
+    return [...tokens].filter(t => !knownVars.has(t));
+  });
+
+  readonly unresolvedVarsLabel = computed(() =>
+    this.unresolvedVars().map(v => `{{${v}}}`).join(', ')
+  );
+
   /** Resolved URL with environment variable tokens substituted. Null when URL has no tokens or no vars are set. */
   readonly resolvedUrl = computed<string | null>(() => {
     const url = this.state.currentRequest().url;
     if (!url.includes('{{')) return null;
-    const vars = this.envService.activeEnvironmentVars();
-    if (!vars.length) return null;
-    const map: Record<string, string> = {};
-    for (const v of vars) {
-      if (v.enabled) map[v.key] = v.value;
-    }
-    const resolved = url.replace(/\{\{(\w+)\}\}/g, (_, k) => map[k] ?? `{{${k}}}`);
+    const map = this.buildVarMap();
+    if (!Object.keys(map).length) return null;
+    const resolved = this.resolveText(url, map);
     return resolved !== url ? resolved : null;
   });
 
@@ -58,11 +92,12 @@ export class RequestBuilderComponent {
     const activeParams = req.params.filter((p) => p.enabled && p.key.trim());
     if (!activeParams.length) return null;
 
-    const base = req.url.trim();
+    const map = this.buildVarMap();
+    const base = this.resolveText(req.url.trim(), map);
     // Build query string without a URL constructor so we handle partial/invalid URLs too
     const existing = base.includes('?') ? '&' : '?';
     const qs = activeParams
-      .map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+      .map((p) => `${encodeURIComponent(this.resolveText(p.key, map))}=${encodeURIComponent(this.resolveText(p.value, map))}`)
       .join('&');
     return base + existing + qs;
   });

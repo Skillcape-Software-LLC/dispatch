@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EnvironmentService } from '../../core/services/environment.service';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
-import { ThemeService } from '../../core/services/theme.service';
 import { SettingsModalService } from '../../core/services/settings-modal.service';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import type { Environment } from '../../core/models/environment.model';
@@ -17,7 +16,6 @@ import type { Environment } from '../../core/models/environment.model';
 export class TopBarComponent implements OnInit {
   readonly envService = inject(EnvironmentService);
   private readonly modal = inject(EnvEditorModalService);
-  readonly themeService = inject(ThemeService);
   readonly settingsModal = inject(SettingsModalService);
   private readonly shortcuts = inject(KeyboardShortcutService);
   private readonly destroyRef = inject(DestroyRef);

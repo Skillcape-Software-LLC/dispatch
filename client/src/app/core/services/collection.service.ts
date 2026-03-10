@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import type { Collection, SavedRequest } from '../models/collection.model';
 
 type SaveRequestBody = Pick<SavedRequest, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'>;
@@ -8,6 +8,13 @@ type SaveRequestBody = Pick<SavedRequest, 'name' | 'method' | 'url' | 'headers' 
 @Injectable({ providedIn: 'root' })
 export class CollectionService {
   private readonly http = inject(HttpClient);
+
+  private readonly _requestUpdated$ = new Subject<string>();
+  readonly requestUpdated$ = this._requestUpdated$.asObservable();
+
+  notifyRequestUpdated(collectionId: string): void {
+    this._requestUpdated$.next(collectionId);
+  }
 
   getCollections(): Observable<Collection[]> {
     return this.http.get<Collection[]>('/api/collections');

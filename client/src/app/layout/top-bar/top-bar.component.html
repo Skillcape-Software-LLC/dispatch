@@ -7,8 +7,8 @@
     <i class="bi bi-layers env-icon"></i>
     <select
       class="env-select"
-      [value]="selectedId()"
-      (change)="onEnvChange($any($event.target).value)"
+      [ngModel]="selectedId()"
+      (ngModelChange)="onEnvChange($event)"
     >
       <option value="">No Environment</option>
       @for (env of environments(); track env.id) {
@@ -21,14 +21,6 @@
   </div>
 
   <div class="top-bar-actions">
-    <button class="btn-icon" (click)="themeService.toggle()"
-            [title]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
-      @if (themeService.theme() === 'dark') {
-        <i class="bi bi-sun"></i>
-      } @else {
-        <i class="bi bi-moon-stars-fill"></i>
-      }
-    </button>
     <button class="btn-icon" title="Settings" (click)="settingsModal.open()">
       <i class="bi bi-sliders2"></i>
     </button>

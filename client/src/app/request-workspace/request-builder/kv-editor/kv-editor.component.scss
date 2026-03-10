@@ -33,7 +33,7 @@
   gap: 0.25rem;
   padding: 0.25rem 0.75rem;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 
   &.disabled .kv-input {
     opacity: 0.4;
@@ -68,13 +68,26 @@
   transition: border-color 120ms;
   min-width: 0;
 
-  &::placeholder { color: var(--d-text-tertiary); }
+  &::placeholder { color: var(--d-text-secondary); }
 
   &:focus {
     outline: none;
     border-color: rgba(245, 166, 35, 0.4);
     background: var(--d-surface-300);
   }
+
+  &.has-var { color: var(--d-amber-400); }
+}
+
+.col-key.kv-input {
+  color: var(--d-text-primary);
+  font-weight: 500;
+}
+
+.col-val.kv-input {
+  color: var(--d-text-secondary);
+
+  &.has-var { color: var(--d-amber-400); }
 }
 
 .btn-del {

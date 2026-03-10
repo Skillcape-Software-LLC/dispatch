@@ -36,7 +36,8 @@
   transition: all 120ms;
 
   &:hover { color: var(--d-text-primary); background: var(--d-surface-200); }
-  &.active { color: var(--d-text-primary); background: var(--d-surface-200); border-bottom-color: var(--d-amber-400); }
+  &.active { color: var(--d-text-primary); background: var(--d-surface-300); border-bottom-color: rgba(255,255,255,0.25); }
+  &.active.dirty { border-bottom-color: var(--d-amber-400); }
 }
 
 .tab-method {
@@ -155,14 +156,15 @@
 /* Status bar */
 .status-bar {
   font-size: 0.6875rem;
-  color: var(--d-text-tertiary);
+  color: var(--d-text-secondary);
   background: var(--d-surface-100);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 
   kbd {
-    background: var(--d-surface-300);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--d-surface-400);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--d-text-primary);
     font-size: 0.5625rem;
     padding: 0.1em 0.35em;
     border-radius: 0.2rem;

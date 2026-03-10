@@ -2,7 +2,7 @@
   <!-- Tab strip -->
   <div class="tabs-bar">
     @for (tab of tabService.tabs(); track tab.id) {
-      <button class="tab-item" [class.active]="tab.id === tabService.activeTabId()"
+      <button class="tab-item" [class.active]="tab.id === tabService.activeTabId()" [class.dirty]="tab.isDirty"
               (click)="tabService.activateTab(tab.id)">
         <span class="tab-method" [ngClass]="methodClass(tab.request.method)">
           {{ tab.request.method }}

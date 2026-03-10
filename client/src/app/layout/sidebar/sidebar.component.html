@@ -16,9 +16,6 @@
       </button>
     </div>
     <div class="collapsed-footer">
-      <button class="icon-only-btn" (click)="settingsModal.open()" title="Settings">
-        <i class="bi bi-sliders2"></i>
-      </button>
       <button class="icon-only-btn" (click)="collapseToggled.emit()" title="Expand sidebar">
         <i class="bi bi-layout-sidebar"></i>
       </button>
@@ -122,39 +119,80 @@
                     <span class="request-count">{{ col.requestCount }}</span>
                   }
                 </button>
-                <div class="row-actions">
-                  <button class="icon-btn" (click)="exportCollection(col, $event)" title="Export">
-                    <i class="bi bi-download"></i>
-                  </button>
-                  <button class="icon-btn" (click)="startRename(col, $event)" title="Rename">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="icon-btn danger" (click)="deleteCollection(col.id, $event)" title="Delete">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
+                @if (confirmingDeleteCollectionId() === col.id) {
+                  <div class="delete-confirm">
+                    <span class="delete-confirm-label">Delete collection?</span>
+                    <button class="icon-btn danger" (click)="deleteCollection(col.id, $event)" title="Confirm delete">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="icon-btn" (click)="cancelDeleteCollection($event)" title="Cancel">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="row-actions">
+                    <button class="icon-btn" (click)="exportCollection(col, $event)" title="Export">
+                      <i class="bi bi-download"></i>
+                    </button>
+                    <button class="icon-btn" (click)="startRename(col, $event)" title="Rename">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="icon-btn danger" (click)="promptDeleteCollection(col.id, $event)" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                }
               }
             </div>
 
             <!-- Expanded requests -->
             @if (isExpanded(col.id)) {
               @for (req of requestsByCollection().get(col.id) ?? []; track req.id) {
-                <div class="list-group-item request-row">
-                  <button class="request-btn" (click)="openSavedRequest(req)">
-                    <span class="badge badge-method" [ngClass]="methodBadgeClass(req.method)">
-                      {{ req.method }}
-                    </span>
-                    <span class="tree-name">{{ req.name }}</span>
-                  </button>
-                  <div class="row-actions">
-                    <button class="icon-btn danger" (click)="deleteRequest(col.id, req.id, $event)" title="Delete">
-                      <i class="bi bi-trash"></i>
+                <div class="list-group-item request-row" [class.is-renaming]="renamingRequestId() === req.id">
+                  @if (renamingRequestId() === req.id) {
+                    <span class="badge badge-method" [ngClass]="methodBadgeClass(req.method)">{{ req.method }}</span>
+                    <input
+                      class="inline-input"
+                      type="text"
+                      [(ngModel)]="renameRequestValue"
+                      (keydown.enter)="confirmRenameRequest(col.id, req.id)"
+                      (keydown.escape)="cancelRenameRequest()"
+                      autofocus>
+                  } @else {
+                    <button class="request-btn" (click)="openSavedRequest(req)">
+                      <span class="badge badge-method" [ngClass]="methodBadgeClass(req.method)">
+                        {{ req.method }}
+                      </span>
+                      <span class="tree-name">{{ req.name }}</span>
                     </button>
-                  </div>
+                    @if (confirmingDeleteRequestId() === req.id) {
+                      <div class="delete-confirm">
+                        <span class="delete-confirm-label">Delete request?</span>
+                        <button class="icon-btn danger" (click)="deleteRequest(col.id, req.id, $event)" title="Confirm delete">
+                          <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button class="icon-btn" (click)="cancelDeleteRequest($event)" title="Cancel">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="row-actions">
+                        <button class="icon-btn" (click)="startRenameRequest(req, $event)" title="Rename">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="icon-btn danger" (click)="promptDeleteRequest(req.id, $event)" title="Delete">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    }
+                  }
                 </div>
               }
               @if ((requestsByCollection().get(col.id) ?? []).length === 0) {
-                <div class="empty-requests">No requests saved</div>
+                <div class="empty-requests">
+                  <span>No requests saved</span>
+                  <a class="empty-requests-link" (click)="tabs.openTab()">+ New request</a>
+                </div>
               }
             }
 
@@ -251,9 +289,6 @@
       </button>
       <button class="btn btn-sm sidebar-action" (click)="openImportModal()">
         <i class="bi bi-upload"></i> Import
-      </button>
-      <button class="btn btn-sm sidebar-action ms-auto" (click)="settingsModal.open()" title="Settings">
-        <i class="bi bi-gear"></i>
       </button>
     </div>
 

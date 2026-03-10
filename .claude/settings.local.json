@@ -26,7 +26,25 @@
       "Bash(curl -s -X POST http://localhost:4000/api/proxy \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"method\":\"GET\",\"url\":\"http://localhost:9999\",\"headers\":[],\"params\":[],\"body\":{\"mode\":\"none\",\"content\":\"\"},\"auth\":{\"type\":\"none\"}}')",
       "Bash(node -e \"\nfetch\\('http://localhost:9999'\\).catch\\(err => {\n  console.log\\('name:', err.name\\);\n  console.log\\('message:', err.message\\);\n  console.log\\('cause:', err.cause\\);\n  console.log\\('cause.code:', err.cause?.code\\);\n  console.log\\('cause.message:', err.cause?.message\\);\n}\\);\n\")",
       "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npm run build 2>&1 | tail -5)",
-      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|warning|complete|Building\" | tail -10)"
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|warning|complete|Building\" | tail -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|ERROR|complete\" | tail -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|ERROR|complete\" | tail -5)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"error|ERROR|complete\" | tail -3)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration=development 2>&1 | tail -30)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration=development 2>&1)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration=development 2>&1 | tail -12)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npx tsc --noEmit 2>&1 | head -50)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --configuration development 2>&1 | grep -E \"ERROR|WARNING|complete\")",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --no-progress 2>&1 | tail -60)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --no-progress 2>&1 | tail -30)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --no-progress 2>&1 | grep -E \"ERROR|✘|✔|Application bundle\" | head -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --no-progress 2>&1 | grep -E \"ERROR|✘|✔|Application bundle|bundle generation\" | head -10)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/server\" && npx tsc --noEmit 2>&1 | head -30)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch\" && timeout 15 npm run dev 2>&1 | head -40 || true)",
+      "Bash(cd \"C:/Users/chad/Repos/Skillcape Software/dispatch/client\" && npx ng build --no-progress 2>&1 | grep -E \"ERROR|✘|✔|bundle generation\" | head -5)",
+      "Bash(cd \"C:\\\\Users\\\\chad\\\\Repos\\\\Skillcape Software\\\\dispatch\" && npm install @fastify/rate-limit @fastify/helmet --workspace=server)",
+      "Bash(cd \"C:\\\\Users\\\\chad\\\\Repos\\\\Skillcape Software\\\\dispatch\" && npm run build --workspace=server 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\chad\\\\Repos\\\\Skillcape Software\\\\dispatch\" && npm run build --workspace=client 2>&1)"
     ]
   }
 }

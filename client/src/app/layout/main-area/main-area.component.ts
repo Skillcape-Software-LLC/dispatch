@@ -73,6 +73,7 @@ export class MainAreaComponent implements OnInit {
       }).subscribe({
         next: (saved) => {
           this.tabService.markSaved(saved.id, tab.savedCollectionId!, req, tab.label);
+          this.collectionService.notifyRequestUpdated(tab.savedCollectionId!);
           this.toast.show(`"${tab.label}" saved`);
         },
         error: () => this.toast.show('Failed to save request', 'error'),
