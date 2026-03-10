@@ -1,0 +1,47 @@
+@if (modal.isOpen()) {
+  <!-- Backdrop -->
+  <div class="modal-backdrop-custom" (click)="close()"></div>
+
+  <!-- Dialog -->
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="codegenModalTitle">
+    <div class="modal-header-custom">
+      <h6 class="modal-title-custom" id="codegenModalTitle">
+        <i class="bi bi-code-slash me-2"></i>Generate Code
+      </h6>
+      <button class="modal-close" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Language tabs -->
+    <div class="lang-tabs">
+      <button class="lang-tab" [class.active]="language() === 'curl'" (click)="language.set('curl')">
+        cURL
+      </button>
+      <button class="lang-tab" [class.active]="language() === 'fetch'" (click)="language.set('fetch')">
+        fetch
+      </button>
+      <button class="lang-tab" [class.active]="language() === 'python'" (click)="language.set('python')">
+        Python
+      </button>
+      <button class="lang-tab" [class.active]="language() === 'csharp'" (click)="language.set('csharp')">
+        C#
+      </button>
+    </div>
+
+    <!-- Code block -->
+    <div class="modal-body-custom">
+      <div class="code-block">
+        <code class="code-text">{{ generatedCode() }}</code>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <button class="btn-cancel" (click)="close()">Close</button>
+      <button class="btn-copy" (click)="copyCode()">
+        <i class="bi bi-clipboard me-1"></i>Copy Code
+      </button>
+    </div>
+  </div>
+}

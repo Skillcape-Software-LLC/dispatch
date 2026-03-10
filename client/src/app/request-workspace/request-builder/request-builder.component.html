@@ -46,6 +46,14 @@
     }
   </div>
 
+  <!-- Resolved URL preview (env variable interpolation) -->
+  @if (resolvedUrl()) {
+    <div class="url-resolved-preview">
+      <i class="bi bi-lightning-charge-fill resolved-icon"></i>
+      <span class="resolved-url">{{ resolvedUrl() }}</span>
+    </div>
+  }
+
   <!-- Assembled URL preview — always visible to avoid layout shift -->
   <div
     class="url-preview"
@@ -105,6 +113,9 @@
           <i class="bi bi-shield-check"></i>
         </span>
       }
+    </button>
+    <button class="config-tab codegen-btn ms-auto" tabindex="-1" (click)="openCodegen()" title="Generate code">
+      <i class="bi bi-code-slash"></i> Code
     </button>
   </div>
 

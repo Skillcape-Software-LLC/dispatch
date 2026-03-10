@@ -1,13 +1,20 @@
 <main class="app-main">
-  <!-- Tabs bar -->
-  <div class="tabs-bar d-flex align-items-center gap-1 px-3">
-    <div class="tab active">
-      <span class="badge badge-method" [ngClass]="'badge-' + state.currentRequest().method.toLowerCase()">
-        {{ state.currentRequest().method }}
-      </span>
-      <span class="tab-name">New Request</span>
-    </div>
-    <button class="btn-tab-new" title="New tab (Ctrl+N)">
+  <!-- Tab strip -->
+  <div class="tabs-bar">
+    @for (tab of tabService.tabs(); track tab.id) {
+      <button class="tab-item" [class.active]="tab.id === tabService.activeTabId()"
+              (click)="tabService.activateTab(tab.id)">
+        <span class="tab-method" [ngClass]="methodClass(tab.request.method)">
+          {{ tab.request.method }}
+        </span>
+        <span class="tab-label">{{ tab.label }}</span>
+        @if (tab.isDirty) { <span class="tab-dirty-dot"></span> }
+        <button class="tab-close" (click)="closeTab($event, tab.id)">
+          <i class="bi bi-x"></i>
+        </button>
+      </button>
+    }
+    <button class="tab-new" title="New tab (Ctrl+N)" (click)="tabService.openTab()">
       <i class="bi bi-plus"></i>
     </button>
   </div>

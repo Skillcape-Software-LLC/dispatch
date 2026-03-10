@@ -1,9 +1,16 @@
 .app-shell {
-  display: grid;
-  grid-template-columns: 260px 1fr;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1;
+  overflow: hidden;
 }
 
 @keyframes fadeIn {

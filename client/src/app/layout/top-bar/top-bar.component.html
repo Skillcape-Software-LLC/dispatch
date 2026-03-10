@@ -1,0 +1,18 @@
+<div class="top-bar">
+  <div class="env-selector">
+    <i class="bi bi-layers env-icon"></i>
+    <select
+      class="env-select"
+      [value]="selectedId()"
+      (change)="onEnvChange($any($event.target).value)"
+    >
+      <option value="">No Environment</option>
+      @for (env of environments(); track env.id) {
+        <option [value]="env.id">{{ env.name }}</option>
+      }
+    </select>
+    <button class="btn-icon" title="Manage environments" (click)="openEditor()">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+@if (modal.isOpen()) {
+  <!-- Backdrop -->
+  <div class="modal-backdrop-custom" (click)="close()"></div>
+
+  <!-- Dialog -->
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+    <div class="modal-header-custom">
+      <h6 class="modal-title-custom" id="saveModalTitle">
+        <i class="bi bi-floppy me-2"></i>Save Request
+      </h6>
+      <button class="modal-close" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body-custom">
+      <!-- Request name -->
+      <div class="field-group">
+        <label class="field-label">Request name</label>
+        <input
+          class="field-input"
+          type="text"
+          [ngModel]="requestName()"
+          (ngModelChange)="requestName.set($event)"
+          placeholder="e.g. Get Users"
+          autofocus>
+      </div>
+
+      <!-- Collection -->
+      <div class="field-group">
+        <label class="field-label">Collection</label>
+        @if (collections().length === 0 && !creatingNewCollection()) {
+          <p class="hint-text">No collections yet — type a name below to create one.</p>
+          <div class="inline-input-row">
+            <input
+              class="field-input"
+              type="text"
+              [ngModel]="newCollectionName()"
+              (ngModelChange)="newCollectionName.set($event)"
+              placeholder="New collection name">
+          </div>
+        } @else {
+          <select
+            class="field-select"
+            [ngModel]="selectedCollectionId()"
+            (ngModelChange)="onCollectionChange($event)">
+            @for (col of collections(); track col.id) {
+              <option [value]="col.id">{{ col.name }}</option>
+            }
+            <option value="__new__">+ New collection…</option>
+          </select>
+        }
+      </div>
+
+      <!-- New collection name (shown when "__new__" selected) -->
+      @if (creatingNewCollection()) {
+        <div class="field-group">
+          <label class="field-label">New collection name</label>
+          <input
+            class="field-input"
+            type="text"
+            [ngModel]="newCollectionName()"
+            (ngModelChange)="newCollectionName.set($event)"
+            placeholder="e.g. My API">
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer-custom">
+      <button class="btn-cancel" (click)="close()">Cancel</button>
+      <button
+        class="btn-save"
+        [disabled]="saving() || !requestName().trim()"
+        (click)="save()">
+        @if (saving()) {
+          <span class="spinner"></span> Saving…
+        } @else {
+          <i class="bi bi-floppy me-1"></i>Save
+        }
+      </button>
+    </div>
+  </div>
+}

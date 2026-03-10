@@ -4,6 +4,10 @@ import { config } from './config';
 import { initDatabase, closeDatabase } from './db/database';
 import { healthRoutes } from './routes/health';
 import { proxyRoutes } from './routes/proxy';
+import { collectionsRoutes } from './routes/collections';
+import { environmentsRoutes } from './routes/environments';
+import { historyRoutes } from './routes/history';
+import { importExportRoutes } from './routes/import-export';
 
 async function bootstrap(): Promise<void> {
   const fastify = Fastify({
@@ -26,6 +30,10 @@ async function bootstrap(): Promise<void> {
   // API routes
   await fastify.register(healthRoutes);
   await fastify.register(proxyRoutes);
+  await fastify.register(collectionsRoutes);
+  await fastify.register(environmentsRoutes);
+  await fastify.register(historyRoutes);
+  await fastify.register(importExportRoutes);
 
   // Static file serving + SPA fallback — production only
   if (config.isProduction) {

@@ -1,0 +1,93 @@
+@if (modal.isOpen()) {
+  <!-- Backdrop -->
+  <div class="modal-backdrop-custom" (click)="close()"></div>
+
+  <!-- Dialog -->
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="modal-header-custom">
+      <h6 class="modal-title-custom" id="importModalTitle">
+        <i class="bi bi-upload me-2"></i>Import
+      </h6>
+      <button class="modal-close" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="modal-tabs">
+      <button
+        class="modal-tab"
+        [class.active]="activeTab() === 'curl'"
+        (click)="activeTab.set('curl')"
+      >cURL Command</button>
+      <button
+        class="modal-tab"
+        [class.active]="activeTab() === 'collection'"
+        (click)="activeTab.set('collection')"
+      >Collection JSON</button>
+    </div>
+
+    <!-- cURL tab -->
+    @if (activeTab() === 'curl') {
+      <div class="modal-body-custom">
+        <div class="field-group">
+          <label class="field-label">Paste your cURL command</label>
+          <textarea
+            class="curl-textarea"
+            rows="8"
+            [(ngModel)]="curlInput"
+            placeholder="curl --request GET 'https://api.example.com/users' --header 'Authorization: Bearer token'"
+          ></textarea>
+        </div>
+        @if (curlError()) {
+          <div class="error-msg">{{ curlError() }}</div>
+        }
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-cancel" (click)="close()">Cancel</button>
+        <button class="btn-import" [disabled]="curlLoading()" (click)="importCurl()">
+          @if (curlLoading()) {
+            <span class="spinner"></span> Importing…
+          } @else {
+            <i class="bi bi-upload me-1"></i>Import
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Collection JSON tab -->
+    @if (activeTab() === 'collection') {
+      <div class="modal-body-custom">
+        <div class="field-group">
+          <label class="field-label">Paste collection JSON or upload a file</label>
+          <div class="file-upload-row">
+            <label class="btn-file-upload">
+              <i class="bi bi-folder2-open me-1"></i>Choose file
+              <input type="file" accept=".json" style="display:none" (change)="onFileSelect($event)">
+            </label>
+            <span class="file-hint">or paste JSON below</span>
+          </div>
+          <textarea
+            class="collection-textarea"
+            rows="8"
+            [(ngModel)]="collectionInput"
+            placeholder='{ "version": 1, "type": "dispatch-collection", "collection": { "name": "My API", "requests": [] } }'
+          ></textarea>
+        </div>
+        @if (collectionError()) {
+          <div class="error-msg">{{ collectionError() }}</div>
+        }
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-cancel" (click)="close()">Cancel</button>
+        <button class="btn-import" [disabled]="collectionLoading()" (click)="importCollection()">
+          @if (collectionLoading()) {
+            <span class="spinner"></span> Importing…
+          } @else {
+            <i class="bi bi-upload me-1"></i>Import
+          }
+        </button>
+      </div>
+    }
+  </div>
+}

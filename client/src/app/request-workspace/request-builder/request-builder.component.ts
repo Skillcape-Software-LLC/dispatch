@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
+import { EnvironmentService } from '../../core/services/environment.service';
+import { CodegenModalService } from '../../core/services/codegen-modal.service';
 import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth } from '../../core/models/active-request.model';
 import { KvEditorComponent } from './kv-editor/kv-editor.component';
 import { BodyEditorComponent } from './body-editor/body-editor.component';
@@ -22,6 +24,8 @@ const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HE
 export class RequestBuilderComponent {
   readonly state = inject(RequestStateService);
   private readonly toast = inject(ToastService);
+  private readonly envService = inject(EnvironmentService);
+  private readonly codegenModal = inject(CodegenModalService);
   readonly methods = HTTP_METHODS;
 
   activeTab = signal<ConfigTab>('params');
@@ -33,6 +37,20 @@ export class RequestBuilderComponent {
     await navigator.clipboard.writeText(url);
     this.toast.show('URL copied to clipboard');
   }
+
+  /** Resolved URL with environment variable tokens substituted. Null when URL has no tokens or no vars are set. */
+  readonly resolvedUrl = computed<string | null>(() => {
+    const url = this.state.currentRequest().url;
+    if (!url.includes('{{')) return null;
+    const vars = this.envService.activeEnvironmentVars();
+    if (!vars.length) return null;
+    const map: Record<string, string> = {};
+    for (const v of vars) {
+      if (v.enabled) map[v.key] = v.value;
+    }
+    const resolved = url.replace(/\{\{(\w+)\}\}/g, (_, k) => map[k] ?? `{{${k}}}`);
+    return resolved !== url ? resolved : null;
+  });
 
   /** Full URL with active query params appended. Null when no active params exist. */
   readonly assembledUrl = computed<string | null>(() => {
@@ -80,5 +98,9 @@ export class RequestBuilderComponent {
 
   onAuthChange(auth: ActiveRequestAuth): void {
     this.state.updateAuth(auth);
+  }
+
+  openCodegen(): void {
+    this.codegenModal.open();
   }
 }

@@ -27,89 +27,200 @@
   <!-- Search -->
   <div class="sidebar-search position-relative px-2 py-2">
     <i class="bi bi-search search-icon"></i>
-    <input type="text" class="form-control form-control-sm" placeholder="Search requests...">
+    @if (activeTab === 'collections') {
+      <input type="text" class="form-control form-control-sm" placeholder="Search collections...">
+    } @else {
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="Search history..."
+        [value]="historySearchQuery()"
+        (input)="historySearchQuery.set($any($event.target).value)"
+      >
+    }
   </div>
 
-  <!-- Tree -->
+  <!-- Tree / History list -->
   <div class="tree-scroll px-2">
+
     @if (activeTab === 'collections') {
-      <div class="list-group list-group-flush tree-list">
-        <!-- User Service collection -->
-        <a class="list-group-item collection" href="#" (click)="$event.preventDefault()">
-          <i class="bi bi-chevron-down tree-chevron"></i>
-          <i class="bi bi-folder2 tree-icon"></i>
-          <span class="tree-name">User Service</span>
-        </a>
-        <div class="ps-3">
-          <a class="list-group-item folder" href="#" (click)="$event.preventDefault()">
-            <i class="bi bi-chevron-down tree-chevron"></i>
-            <i class="bi bi-folder2 tree-icon"></i>
-            <span class="tree-name">Auth</span>
-          </a>
-          <div class="ps-3">
-            <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-              <span class="tree-indent"></span>
-              <span class="badge badge-method badge-post">POST</span>
-              <span class="tree-name">Login</span>
-            </a>
-            <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-              <span class="tree-indent"></span>
-              <span class="badge badge-method badge-post">POST</span>
-              <span class="tree-name">Register</span>
-            </a>
-          </div>
-          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-            <span class="tree-indent"></span>
-            <span class="badge badge-method badge-get">GET</span>
-            <span class="tree-name">Get All Users</span>
-          </a>
-          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-            <span class="tree-indent"></span>
-            <span class="badge badge-method badge-get">GET</span>
-            <span class="tree-name">Get User by ID</span>
-          </a>
-          <a class="list-group-item active" href="#" (click)="$event.preventDefault()">
-            <span class="tree-indent"></span>
-            <span class="badge badge-method badge-post">POST</span>
-            <span class="tree-name">Create User</span>
-          </a>
-          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-            <span class="tree-indent"></span>
-            <span class="badge badge-method badge-put">PUT</span>
-            <span class="tree-name">Update User</span>
-          </a>
-          <a class="list-group-item" href="#" (click)="$event.preventDefault()">
-            <span class="tree-indent"></span>
-            <span class="badge badge-method badge-del">DEL</span>
-            <span class="tree-name">Delete User</span>
-          </a>
+
+      <!-- Section header -->
+      <div class="section-header d-flex align-items-center px-1 py-1">
+        <span class="section-label">Collections</span>
+        <button class="icon-btn ms-auto" (click)="startCreate()" title="New collection">
+          <i class="bi bi-plus"></i>
+        </button>
+      </div>
+
+      <!-- New collection inline input -->
+      @if (creatingCollection()) {
+        <div class="inline-edit px-1 pb-1">
+          <input
+            class="inline-input"
+            type="text"
+            [(ngModel)]="newCollectionName"
+            placeholder="Collection name"
+            (keydown.enter)="confirmCreate()"
+            (keydown.escape)="cancelCreate()"
+            autofocus>
         </div>
-        <a class="list-group-item collection mt-1" href="#" (click)="$event.preventDefault()">
-          <i class="bi bi-chevron-right tree-chevron"></i>
-          <i class="bi bi-folder2 tree-icon"></i>
-          <span class="tree-name">Payment Service</span>
-        </a>
-        <a class="list-group-item collection mt-1" href="#" (click)="$event.preventDefault()">
-          <i class="bi bi-chevron-right tree-chevron"></i>
-          <i class="bi bi-folder2 tree-icon"></i>
-          <span class="tree-name">Notification Service</span>
-        </a>
+      }
+
+      <!-- Collections list -->
+      <div class="list-group list-group-flush tree-list">
+        @for (col of collections(); track col.id) {
+
+          <!-- Collection row -->
+          <div class="list-group-item collection-row"
+               [class.is-renaming]="renamingId() === col.id">
+            @if (renamingId() === col.id) {
+              <input
+                class="inline-input w-100"
+                type="text"
+                [(ngModel)]="renameValue"
+                (keydown.enter)="confirmRename(col.id)"
+                (keydown.escape)="cancelRename()"
+                autofocus>
+            } @else {
+              <button class="collection-toggle" (click)="toggleExpand(col.id)">
+                <i class="bi tree-chevron"
+                   [class.bi-chevron-down]="isExpanded(col.id)"
+                   [class.bi-chevron-right]="!isExpanded(col.id)"></i>
+                <i class="bi bi-folder2 tree-icon"></i>
+                <span class="tree-name">{{ col.name }}</span>
+                @if (col.requestCount > 0) {
+                  <span class="request-count">{{ col.requestCount }}</span>
+                }
+              </button>
+              <div class="row-actions">
+                <button class="icon-btn" (click)="exportCollection(col, $event)" title="Export">
+                  <i class="bi bi-download"></i>
+                </button>
+                <button class="icon-btn" (click)="startRename(col, $event)" title="Rename">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="icon-btn danger" (click)="deleteCollection(col.id, $event)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- Expanded requests -->
+          @if (isExpanded(col.id)) {
+            @for (req of requestsByCollection().get(col.id) ?? []; track req.id) {
+              <div class="list-group-item request-row">
+                <button class="request-btn" (click)="openSavedRequest(req)">
+                  <span class="badge badge-method" [ngClass]="methodBadgeClass(req.method)">
+                    {{ req.method }}
+                  </span>
+                  <span class="tree-name">{{ req.name }}</span>
+                </button>
+                <div class="row-actions">
+                  <button class="icon-btn danger" (click)="deleteRequest(col.id, req.id, $event)" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+            @if ((requestsByCollection().get(col.id) ?? []).length === 0) {
+              <div class="empty-requests">No requests saved</div>
+            }
+          }
+
+        }
+
+        @if (collections().length === 0 && !creatingCollection()) {
+          <div class="collections-empty">
+            <i class="bi bi-folder2" style="font-size: 1.25rem;"></i>
+            <p>No collections yet</p>
+            <button class="btn-create-first" (click)="startCreate()">
+              <i class="bi bi-plus"></i> Create collection
+            </button>
+          </div>
+        }
       </div>
+
     } @else {
-      <div class="history-empty d-flex flex-column align-items-center justify-content-center py-5 text-center">
-        <i class="bi bi-clock-history" style="font-size: 1.5rem; color: var(--d-text-tertiary); margin-bottom: 0.5rem;"></i>
-        <p class="mb-0" style="font-size: 0.75rem; color: var(--d-text-tertiary);">No history yet</p>
-        <p style="font-size: 0.6875rem; color: var(--d-text-tertiary); margin-top: 0.25rem;">Sent requests will appear here</p>
+
+      <!-- History section header -->
+      <div class="section-header d-flex align-items-center px-1 py-1">
+        <span class="section-label">History</span>
+        @if (historyEntries().length > 0) {
+          <button class="icon-btn danger ms-auto" (click)="clearHistory()" title="Clear all history">
+            <i class="bi bi-trash3"></i>
+          </button>
+        }
       </div>
+
+      @if (historyLoading()) {
+        <div class="history-loading">
+          <span class="spinner-sm"></span>
+          <span>Loading…</span>
+        </div>
+      } @else if (historyEntries().length === 0) {
+        <div class="history-empty">
+          <i class="bi bi-clock-history"></i>
+          <p>No history yet</p>
+          <p class="hint">Sent requests will appear here</p>
+        </div>
+      } @else if (filteredHistory().length === 0) {
+        <div class="history-empty">
+          <i class="bi bi-search"></i>
+          <p>No results</p>
+          <p class="hint">Try a different search term</p>
+        </div>
+      } @else {
+        <!-- Grouped history entries -->
+        @for (group of groupedHistory(); track group.label) {
+          <div class="history-group-label">{{ group.label }}</div>
+          @for (entry of group.entries; track entry.id) {
+            <div class="history-row" (click)="openHistoryEntry(entry)">
+              <div class="history-row-main">
+                <span class="badge badge-method" [ngClass]="methodBadgeClass(entry.request.method)">
+                  {{ entry.request.method }}
+                </span>
+                <span class="history-url" [title]="entry.request.url">
+                  {{ historyDisplayUrl(entry.request.url) }}
+                </span>
+              </div>
+              <div class="history-row-meta">
+                <span class="history-status" [ngClass]="statusClass(entry.response.status)">
+                  {{ entry.response.status }}
+                </span>
+                <span class="history-time">{{ historyTimestamp(entry.timestamp) }}</span>
+                <div class="row-actions history-actions">
+                  <button
+                    class="icon-btn"
+                    title="Save to collection"
+                    (click)="saveHistoryEntry(entry, $event)"
+                  >
+                    <i class="bi bi-floppy"></i>
+                  </button>
+                  <button
+                    class="icon-btn danger"
+                    title="Delete"
+                    (click)="deleteHistoryEntry(entry.id, $event)"
+                  >
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      }
+
     }
   </div>
 
   <!-- Footer -->
   <div class="sidebar-footer d-flex gap-1 px-2 py-2">
-    <button class="btn btn-sm sidebar-action">
+    <button class="btn btn-sm sidebar-action" (click)="startCreate()">
       <i class="bi bi-plus"></i> New
     </button>
-    <button class="btn btn-sm sidebar-action">
+    <button class="btn btn-sm sidebar-action" (click)="openImportModal()">
       <i class="bi bi-upload"></i> Import
     </button>
     <button class="btn btn-sm sidebar-action ms-auto">

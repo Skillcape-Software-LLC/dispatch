@@ -1,24 +1,26 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
 import { EMPTY, catchError, tap } from 'rxjs';
 import { ProxyService } from './proxy.service';
+import { TabService } from './tab.service';
+import { HistoryService } from './history.service';
 import {
-  ActiveRequest,
   ActiveRequestAuth,
   ActiveRequestBody,
   HttpMethod,
   KvEntry,
-  defaultActiveRequest,
 } from '../models/active-request.model';
-import type { ProxyError, ProxyResult } from '../models/proxy-result.model';
+import type { ProxyError } from '../models/proxy-result.model';
 
 @Injectable({ providedIn: 'root' })
 export class RequestStateService {
+  private readonly tabs = inject(TabService);
   private readonly proxyService = inject(ProxyService);
+  private readonly historyService = inject(HistoryService);
 
-  readonly currentRequest = signal<ActiveRequest>(defaultActiveRequest());
-  readonly isLoading = signal(false);
-  readonly lastResponse = signal<ProxyResult | null>(null);
-  readonly requestError = signal<ProxyError | null>(null);
+  readonly currentRequest = computed(() => this.tabs.activeTab().request);
+  readonly isLoading = computed(() => this.tabs.activeTab().isLoading);
+  readonly lastResponse = computed(() => this.tabs.activeTab().response);
+  readonly requestError = computed(() => this.tabs.activeTab().error);
 
   readonly enabledHeaderCount = computed(() =>
     this.currentRequest().headers.filter((h) => h.enabled && h.key.trim()).length
@@ -29,27 +31,27 @@ export class RequestStateService {
   );
 
   updateMethod(method: HttpMethod): void {
-    this.currentRequest.update((r) => ({ ...r, method }));
+    this.tabs.updateRequest((r) => ({ ...r, method }));
   }
 
   updateUrl(url: string): void {
-    this.currentRequest.update((r) => ({ ...r, url }));
+    this.tabs.updateRequest((r) => ({ ...r, url }));
   }
 
   updateHeaders(headers: KvEntry[]): void {
-    this.currentRequest.update((r) => ({ ...r, headers }));
+    this.tabs.updateRequest((r) => ({ ...r, headers }));
   }
 
   updateParams(params: KvEntry[]): void {
-    this.currentRequest.update((r) => ({ ...r, params }));
+    this.tabs.updateRequest((r) => ({ ...r, params }));
   }
 
   updateBody(body: ActiveRequestBody): void {
-    this.currentRequest.update((r) => ({ ...r, body }));
+    this.tabs.updateRequest((r) => ({ ...r, body }));
   }
 
   updateAuth(auth: ActiveRequestAuth): void {
-    this.currentRequest.update((r) => ({ ...r, auth }));
+    this.tabs.updateRequest((r) => ({ ...r, auth }));
   }
 
   sendRequest(): void {
@@ -57,20 +59,20 @@ export class RequestStateService {
     const req = this.currentRequest();
     if (!req.url.trim()) return;
 
-    this.isLoading.set(true);
-    this.lastResponse.set(null);
-    this.requestError.set(null);
+    this.tabs.setLoading(true);
+    this.tabs.clearResponse();
 
     this.proxyService
-      .send(req)
+      .send(req, this.tabs.activeTab().savedCollectionId ?? undefined)
       .pipe(
         tap((result) => {
-          this.lastResponse.set(result);
-          this.isLoading.set(false);
+          this.tabs.setResponse(result);
+          this.tabs.setLoading(false);
+          this.historyService.notifyNewEntry();
         }),
         catchError((err) => {
-          this.requestError.set(err.error as ProxyError);
-          this.isLoading.set(false);
+          this.tabs.setError(err.error as ProxyError);
+          this.tabs.setLoading(false);
           return EMPTY;
         })
       )

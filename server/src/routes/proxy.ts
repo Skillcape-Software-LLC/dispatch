@@ -1,7 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 import { buildUrl, buildHeaders, buildBodyContent } from '../proxy/builder';
-import { getHistory } from '../db/database';
+import { buildVarMap, interpolateRequest } from '../proxy/interpolation';
+import { getHistory, getCollections, getEnvironments } from '../db/database';
 import type { AuthConfig, HeaderEntry, ParamEntry, HistoryDocument } from '../db/types';
 
 interface ProxyRequestBody {
@@ -11,6 +12,23 @@ interface ProxyRequestBody {
   params?: ParamEntry[];
   body?: { mode: string; content: string };
   auth?: AuthConfig;
+  environmentId?: string;
+  collectionId?: string;
+}
+
+async function resolveVars(
+  collectionId: string | undefined,
+  environmentId: string | undefined
+): Promise<Record<string, string>> {
+  const collectionVars =
+    collectionId
+      ? (getCollections().findOne({ id: collectionId })?.variables ?? [])
+      : [];
+  const envVars =
+    environmentId
+      ? (getEnvironments().findOne({ id: environmentId })?.variables ?? [])
+      : [];
+  return buildVarMap(collectionVars, envVars);
 }
 
 export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
@@ -28,6 +46,8 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
             params: { type: 'array' },
             body: { type: 'object' },
             auth: { type: 'object' },
+            environmentId: { type: 'string' },
+            collectionId: { type: 'string' },
           },
         },
       },
@@ -35,12 +55,19 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const {
         method,
-        url,
-        headers = [],
-        params = [],
-        body = { mode: 'none', content: '' },
-        auth = { type: 'none' },
+        environmentId,
+        collectionId,
       } = request.body;
+
+      // Interpolate variables before building the request
+      const vars = await resolveVars(collectionId, environmentId);
+      const interpolated = interpolateRequest(request.body, vars);
+
+      const url = interpolated.url;
+      const headers = interpolated.headers ?? [];
+      const params = interpolated.params ?? [];
+      const body = interpolated.body ?? { mode: 'none', content: '' };
+      const auth = interpolated.auth ?? { type: 'none' };
 
       const startTime = Date.now();
 
@@ -125,8 +152,9 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
         time: elapsed,
       };
 
-      // Insert history (best-effort)
+      // Insert history (best-effort) + auto-prune oldest entries over 500
       try {
+        const histCol = getHistory();
         const historyEntry: HistoryDocument = {
           id: uuidv4(),
           request: {
@@ -138,7 +166,13 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
           response: result,
           timestamp: new Date().toISOString(),
         };
-        getHistory().insert(historyEntry);
+        histCol.insert(historyEntry);
+
+        const count = histCol.count();
+        if (count > 500) {
+          const oldest = histCol.chain().simplesort('timestamp').limit(count - 500).data();
+          histCol.remove(oldest);
+        }
       } catch (histErr) {
         fastify.log.warn({ err: histErr }, 'Failed to write history entry');
       }
