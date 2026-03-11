@@ -1,6 +1,5 @@
 # Dispatch
 
-[![CI](https://github.com/skillcape-software/dispatch/actions/workflows/ci.yml/badge.svg)](https://github.com/skillcape-software/dispatch/actions/workflows/ci.yml)
 
 Lightweight, containerized HTTP testing tool. The anti-Postman.
 
