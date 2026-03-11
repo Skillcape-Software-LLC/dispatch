@@ -1,6 +1,6 @@
 services:
   dispatch:
-    image: ghcr.io/skillcape-software-llc/dispatch:v1.1.2
+    image: ghcr.io/skillcape-software-llc/dispatch:latest
     ports:
       - "3000:3000"
     volumes:
