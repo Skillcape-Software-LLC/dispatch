@@ -1,3 +1,8 @@
+:host {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .request-builder {
   display: flex;
   flex-direction: column;

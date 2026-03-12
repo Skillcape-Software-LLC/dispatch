@@ -1,3 +1,8 @@
+:host {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .app-sidebar {
   background: var(--d-surface-100);
   border-right: 1px solid var(--bs-border-color);
