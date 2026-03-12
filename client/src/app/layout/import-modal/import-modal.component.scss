@@ -146,6 +146,36 @@
   }
 }
 
+/* Central tab */
+.central-desc {
+  font-size: 0.8125rem;
+  color: var(--d-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.central-input {
+  background: var(--d-surface-300);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  color: var(--d-text-primary);
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 120ms;
+
+  &:focus {
+    border-color: var(--d-amber-400);
+    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.15);
+  }
+
+  &::placeholder {
+    color: var(--d-text-tertiary);
+    opacity: 0.6;
+  }
+}
+
 .file-upload-row {
   display: flex;
   align-items: center;

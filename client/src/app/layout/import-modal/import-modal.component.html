@@ -25,6 +25,11 @@
         [class.active]="activeTab() === 'collection'"
         (click)="activeTab.set('collection')"
       >Collection JSON</button>
+      <button
+        class="modal-tab"
+        [class.active]="activeTab() === 'central'"
+        (click)="activeTab.set('central')"
+      >Central</button>
     </div>
 
     <!-- cURL tab -->
@@ -85,6 +90,39 @@
             <span class="spinner"></span> Importing…
           } @else {
             <i class="bi bi-upload me-1"></i>Import
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Central tab -->
+    @if (activeTab() === 'central') {
+      <div class="modal-body-custom">
+        <p class="central-desc">Enter a channel ID to subscribe and import the collection from Dispatch Central.</p>
+        <div class="field-group">
+          <label class="field-label">Central Server URL</label>
+          <input type="text" class="central-input"
+                 placeholder="https://central.example.com"
+                 [(ngModel)]="centralUrl">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Channel ID</label>
+          <input type="text" class="central-input"
+                 placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                 [(ngModel)]="channelId"
+                 (keydown.enter)="subscribeToCentral()">
+        </div>
+        @if (centralError()) {
+          <div class="error-msg"><i class="bi bi-exclamation-circle-fill me-1"></i>{{ centralError() }}</div>
+        }
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-cancel" (click)="close()">Cancel</button>
+        <button class="btn-import" [disabled]="centralSubscribing()" (click)="subscribeToCentral()">
+          @if (centralSubscribing()) {
+            <span class="spinner"></span> Subscribing…
+          } @else {
+            <i class="bi bi-broadcast-pin me-1"></i>Subscribe
           }
         </button>
       </div>

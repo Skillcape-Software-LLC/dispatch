@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { CollectionService } from '../../core/services/collection.service';
+import { ImportExportService } from '../../core/services/import-export.service';
 import { TabService } from '../../core/services/tab.service';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -17,6 +18,7 @@ import type { Collection } from '../../core/models/collection.model';
 export class SaveAsModalComponent {
   readonly modal = inject(SaveAsModalService);
   private readonly collectionService = inject(CollectionService);
+  private readonly importExportService = inject(ImportExportService);
   private readonly tabs = inject(TabService);
   private readonly state = inject(RequestStateService);
   private readonly toast = inject(ToastService);
@@ -82,6 +84,7 @@ export class SaveAsModalComponent {
           this.tabs.markSaved(saved.id, collectionId, req, name);
           this.toast.show(`"${name}" saved`);
           this.modal.close();
+          this.importExportService.notifyCollectionsChanged();
         },
         error: () => {
           this.toast.show('Failed to save request', 'error');

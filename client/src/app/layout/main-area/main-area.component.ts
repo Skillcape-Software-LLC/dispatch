@@ -7,6 +7,7 @@ import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { ToastService } from '../../core/services/toast.service';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
+import { ImportModalService } from '../../core/services/import-modal.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { CentralClientService } from '../../core/services/central-client.service';
 
@@ -26,6 +27,7 @@ export class MainAreaComponent implements OnInit, OnDestroy {
   private readonly state = inject(RequestStateService);
   private readonly toast = inject(ToastService);
   private readonly shortcuts = inject(KeyboardShortcutService);
+  private readonly importModal = inject(ImportModalService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly settingsService = inject(SettingsService);
   private readonly centralClient = inject(CentralClientService);
@@ -68,10 +70,19 @@ export class MainAreaComponent implements OnInit, OnDestroy {
       action: () => this.tabService.closeTab(this.tabService.activeTabId()),
     });
 
+    this.shortcuts.register('import', {
+      key: 'i',
+      ctrl: true,
+      description: 'Import',
+      group: 'GENERAL',
+      action: () => this.importModal.open(),
+    });
+
     this.destroyRef.onDestroy(() => {
       this.shortcuts.unregister('save-request');
       this.shortcuts.unregister('new-tab');
       this.shortcuts.unregister('close-tab');
+      this.shortcuts.unregister('import');
     });
 
     // Poll Central status every 5 minutes

@@ -83,6 +83,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly confirmingDeleteCollectionId = signal<string | null>(null);
   readonly confirmingDeleteRequestId = signal<string | null>(null);
 
+  // Dropdown menu
+  readonly openMenuId = signal<string | null>(null);
+  private documentClickListener = (e: Event) => {
+    if (this.openMenuId() && !(e.target as HTMLElement).closest('.menu-trigger, .dropdown-menu-custom')) {
+      this.openMenuId.set(null);
+    }
+  };
+
   // History
   readonly historyEntries = signal<HistoryEntry[]>([]);
   readonly historyLoading = signal(false);
@@ -137,6 +145,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private syncCompletedSub?: Subscription;
 
   ngOnInit(): void {
+    document.addEventListener('click', this.documentClickListener);
     this.loadCollections();
     this.loadEnvironments();
     this.historyRefreshSub = this.historyService.newEntry$.subscribe(() => {
@@ -158,10 +167,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('click', this.documentClickListener);
     this.historyRefreshSub?.unsubscribe();
     this.collectionsChangedSub?.unsubscribe();
     this.requestUpdatedSub?.unsubscribe();
     this.syncCompletedSub?.unsubscribe();
+  }
+
+  toggleMenu(id: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openMenuId.set(this.openMenuId() === id ? null : id);
+  }
+
+  closeMenu(): void {
+    this.openMenuId.set(null);
   }
 
   setTab(tab: 'collections' | 'history'): void {
@@ -299,6 +318,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   startRename(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.renameValue = col.name;
     this.renamingId.set(col.id);
   }
@@ -323,6 +343,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   promptDeleteCollection(id: string, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.confirmingDeleteCollectionId.set(id);
   }
 
@@ -350,6 +371,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   startRenameRequest(req: SavedRequest, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.renameRequestValue = req.name;
     this.renamingRequestId.set(req.id);
   }
@@ -377,6 +399,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   promptDeleteRequest(requestId: string, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.confirmingDeleteRequestId.set(requestId);
   }
 
@@ -432,6 +455,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   openPublishModal(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.publishModal.open(col.id, col.name);
   }
 
@@ -442,16 +466,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   openPullPreview(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.pullPreviewModal.open(col);
   }
 
   openChannelInfo(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.channelInfoModal.open(col);
   }
 
   pushCollection(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.syncService.push(col).catch(() => this.toast.show('Push failed', 'error'));
   }
 
@@ -461,6 +488,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   exportCollection(col: Collection, event: MouseEvent): void {
     event.stopPropagation();
+    this.closeMenu();
     this.importExportService.exportCollection(col.id).subscribe({
       next: (data) => this.importExportService.downloadJson(data, col.name + '.dispatch.json'),
       error: () => this.toast.show('Failed to export', 'error'),

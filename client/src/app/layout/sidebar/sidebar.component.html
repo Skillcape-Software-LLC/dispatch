@@ -78,12 +78,6 @@
         <!-- Section header -->
         <div class="section-header d-flex align-items-center px-1 py-1">
           <span class="section-label">Collections</span>
-          <button class="icon-btn ms-auto" (click)="openSubscribeModal($event)" title="Join a channel">
-            <i class="bi bi-broadcast-pin"></i>
-          </button>
-          <button class="icon-btn" (click)="startCreate()" title="New collection">
-            <i class="bi bi-plus"></i>
-          </button>
         </div>
 
         <!-- New collection inline input -->
@@ -142,36 +136,45 @@
                     </button>
                   </div>
                 } @else {
-                  <div class="row-actions">
-                    @if (isSynced(col)) {
-                      @if (canPush(col)) {
-                        <button class="icon-btn" (click)="pushCollection(col, $event)" title="Push to Central">
-                          <i class="bi bi-cloud-upload"></i>
+                  <button class="icon-btn menu-trigger"
+                          [class.active]="openMenuId() === col.id"
+                          (click)="toggleMenu(col.id, $event)"
+                          title="Actions">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  @if (openMenuId() === col.id) {
+                    <div class="dropdown-menu-custom">
+                      @if (isSynced(col)) {
+                        @if (canPush(col)) {
+                          <button class="dropdown-item-custom" (click)="pushCollection(col, $event)">
+                            <i class="bi bi-cloud-upload"></i> Push to Central
+                          </button>
+                        }
+                        @if (canPull(col)) {
+                          <button class="dropdown-item-custom" (click)="openPullPreview(col, $event)">
+                            <i class="bi bi-cloud-download"></i> Pull from Central
+                          </button>
+                        }
+                        <button class="dropdown-item-custom" (click)="openChannelInfo(col, $event)">
+                          <i class="bi bi-broadcast"></i> Channel info
+                        </button>
+                      } @else {
+                        <button class="dropdown-item-custom" (click)="openPublishModal(col, $event)">
+                          <i class="bi bi-broadcast"></i> Publish to Central
                         </button>
                       }
-                      @if (canPull(col)) {
-                        <button class="icon-btn" (click)="openPullPreview(col, $event)" title="Pull from Central">
-                          <i class="bi bi-cloud-download"></i>
-                        </button>
-                      }
-                      <button class="icon-btn" (click)="openChannelInfo(col, $event)" title="Channel info">
-                        <i class="bi bi-broadcast"></i>
+                      <div class="dropdown-divider-custom"></div>
+                      <button class="dropdown-item-custom" (click)="exportCollection(col, $event)">
+                        <i class="bi bi-download"></i> Export
                       </button>
-                    } @else {
-                      <button class="icon-btn" (click)="openPublishModal(col, $event)" title="Publish to Central">
-                        <i class="bi bi-broadcast"></i>
+                      <button class="dropdown-item-custom" (click)="startRename(col, $event)">
+                        <i class="bi bi-pencil"></i> Rename
                       </button>
-                    }
-                    <button class="icon-btn" (click)="exportCollection(col, $event)" title="Export">
-                      <i class="bi bi-download"></i>
-                    </button>
-                    <button class="icon-btn" (click)="startRename(col, $event)" title="Rename">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="icon-btn danger" (click)="promptDeleteCollection(col.id, $event)" title="Delete">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
+                      <button class="dropdown-item-custom danger" (click)="promptDeleteCollection(col.id, $event)">
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                    </div>
+                  }
                 }
               }
             </div>
@@ -207,14 +210,22 @@
                         </button>
                       </div>
                     } @else {
-                      <div class="row-actions">
-                        <button class="icon-btn" (click)="startRenameRequest(req, $event)" title="Rename">
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="icon-btn danger" (click)="promptDeleteRequest(req.id, $event)" title="Delete">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </div>
+                      <button class="icon-btn menu-trigger"
+                              [class.active]="openMenuId() === req.id"
+                              (click)="toggleMenu(req.id, $event)"
+                              title="Actions">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      @if (openMenuId() === req.id) {
+                        <div class="dropdown-menu-custom">
+                          <button class="dropdown-item-custom" (click)="startRenameRequest(req, $event)">
+                            <i class="bi bi-pencil"></i> Rename
+                          </button>
+                          <button class="dropdown-item-custom danger" (click)="promptDeleteRequest(req.id, $event)">
+                            <i class="bi bi-trash"></i> Delete
+                          </button>
+                        </div>
+                      }
                     }
                   }
                 </div>
