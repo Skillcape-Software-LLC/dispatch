@@ -1,0 +1,67 @@
+@if (modal.isOpen()) {
+  <!-- Backdrop -->
+  <div class="modal-backdrop-custom" (click)="close()"></div>
+
+  <!-- Dialog -->
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="colSettingsTitle">
+    <div class="modal-header-custom">
+      <h6 class="modal-title-custom" id="colSettingsTitle">
+        <i class="bi bi-gear me-2"></i>Collection Settings
+        @if (collectionName()) {
+          <span class="modal-title-name">— {{ collectionName() }}</span>
+        }
+      </h6>
+      <button class="modal-close" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Tab nav -->
+    <div class="settings-nav">
+      <button
+        class="settings-tab"
+        [class.active]="activeTab() === 'auth'"
+        (click)="activeTab.set('auth')"
+      >
+        Auth
+      </button>
+      <button
+        class="settings-tab"
+        [class.active]="activeTab() === 'headers'"
+        (click)="activeTab.set('headers')"
+      >
+        Preset Headers
+      </button>
+    </div>
+
+    <!-- Tab content -->
+    <div class="settings-content">
+      @if (activeTab() === 'auth') {
+        <app-auth-editor
+          [auth]="editingAuth()"
+          (authChange)="editingAuth.set($event)"
+        />
+      }
+      @if (activeTab() === 'headers') {
+        <app-kv-editor
+          [rows]="editingHeaders()"
+          (rowsChange)="editingHeaders.set($event)"
+          placeholder="Header"
+          valuePlaceholder="Value"
+        />
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="settings-footer">
+      <button class="btn-cancel-settings" (click)="close()">Cancel</button>
+      <button class="btn-save-settings" [disabled]="saving()" (click)="save()">
+        @if (saving()) {
+          <span class="spinner"></span> Saving…
+        } @else {
+          <i class="bi bi-floppy me-1"></i>Save
+        }
+      </button>
+    </div>
+  </div>
+}
