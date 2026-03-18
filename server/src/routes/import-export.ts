@@ -79,6 +79,7 @@ export async function importExportRoutes(fastify: FastifyInstance): Promise<void
       description: (collection.description as string | undefined) ?? '',
       folders: [],
       auth: { type: 'none' },
+      presetHeaders: [],
       variables: (collection.variables as CollectionDocument['variables'] | undefined) ?? [],
       createdAt: now,
       updatedAt: now,
