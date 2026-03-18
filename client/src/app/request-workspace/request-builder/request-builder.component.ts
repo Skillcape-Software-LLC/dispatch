@@ -2,11 +2,12 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { RequestStateService } from '../../core/services/request-state.service';
+import { CollectionService } from '../../core/services/collection.service';
 import { ToastService } from '../../core/services/toast.service';
 import { EnvironmentService } from '../../core/services/environment.service';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
 import { CodegenModalService } from '../../core/services/codegen-modal.service';
-import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth } from '../../core/models/active-request.model';
+import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth, defaultActiveRequest } from '../../core/models/active-request.model';
 import { KvEditorComponent } from './kv-editor/kv-editor.component';
 import { BodyEditorComponent } from './body-editor/body-editor.component';
 import { AuthEditorComponent } from './auth-editor/auth-editor.component';
@@ -24,6 +25,7 @@ const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HE
 })
 export class RequestBuilderComponent {
   readonly state = inject(RequestStateService);
+  private readonly collectionService = inject(CollectionService);
   private readonly toast = inject(ToastService);
   private readonly envService = inject(EnvironmentService);
   readonly envEditorModal = inject(EnvEditorModalService);
@@ -133,6 +135,34 @@ export class RequestBuilderComponent {
 
   onAuthChange(auth: ActiveRequestAuth): void {
     this.state.updateAuth(auth);
+  }
+
+  inheritFromCollection(): void {
+    const collectionId = this.state.savedCollectionId();
+    if (!collectionId) return;
+
+    this.collectionService.getCollections().subscribe((cols) => {
+      const col = cols.find((c) => c.id === collectionId);
+      if (!col) return;
+
+      // Replace auth wholesale
+      this.state.updateAuth({ ...defaultActiveRequest().auth, ...col.auth });
+
+      // Prepend preset headers whose keys aren't already present (case-insensitive)
+      const existing = this.state.currentRequest().headers;
+      const existingKeys = new Set(
+        existing.filter((h) => h.key.trim()).map((h) => h.key.toLowerCase())
+      );
+      const toAdd: KvEntry[] = (col.presetHeaders ?? [])
+        .filter((h) => h.enabled && h.key.trim() && !existingKeys.has(h.key.toLowerCase()))
+        .map((h) => ({ id: crypto.randomUUID(), key: h.key, value: h.value, enabled: h.enabled }));
+
+      if (toAdd.length) {
+        this.state.updateHeaders([...toAdd, ...existing]);
+      }
+
+      this.toast.show('Inherited auth and headers from collection');
+    });
   }
 
   openCodegen(): void {

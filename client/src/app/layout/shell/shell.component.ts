@@ -13,6 +13,7 @@ import { PublishModalComponent } from '../publish-modal/publish-modal.component'
 import { SubscribeModalComponent } from '../subscribe-modal/subscribe-modal.component';
 import { PullPreviewModalComponent } from '../pull-preview-modal/pull-preview-modal.component';
 import { ChannelInfoModalComponent } from '../channel-info-modal/channel-info-modal.component';
+import { CollectionSettingsModalComponent } from '../collection-settings-modal/collection-settings-modal.component';
 import { SettingsService } from '../../core/services/settings.service';
 import { SwUpdateService } from '../../core/services/sw-update.service';
 
@@ -29,6 +30,7 @@ const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
     SettingsModalComponent, ShortcutPanelComponent,
     PublishModalComponent, SubscribeModalComponent,
     PullPreviewModalComponent, ChannelInfoModalComponent,
+    CollectionSettingsModalComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',

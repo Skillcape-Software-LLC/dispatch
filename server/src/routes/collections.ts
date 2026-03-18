@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { getCollections, getRequests } from '../db/database';
-import type { CollectionDocument, RequestDocument } from '../db/types';
+import type { AuthConfig, CollectionDocument, HeaderEntry, RequestDocument } from '../db/types';
 
 // Strip LokiJS internal fields before returning to client
 function strip<T extends object>(doc: T): Omit<T, '$loki' | 'meta'> {
@@ -34,6 +34,7 @@ export async function collectionsRoutes(fastify: FastifyInstance): Promise<void>
       description: '',
       folders: [],
       auth: { type: 'none' },
+      presetHeaders: [],
       variables: [],
       createdAt: now,
       updatedAt: now,
@@ -45,6 +46,8 @@ export async function collectionsRoutes(fastify: FastifyInstance): Promise<void>
   // PATCH /api/collections/:id
   type CollectionPatchBody = {
     name?: string;
+    auth?: AuthConfig;
+    presetHeaders?: HeaderEntry[];
     channelId?: string;
     centralUrl?: string;
     syncRole?: 'owner' | 'subscriber';
@@ -53,7 +56,7 @@ export async function collectionsRoutes(fastify: FastifyInstance): Promise<void>
     lastSyncAt?: string;
   };
   const COLLECTION_ALLOWED_KEYS: ReadonlyArray<keyof CollectionPatchBody> = [
-    'name', 'channelId', 'centralUrl', 'syncRole', 'syncMode', 'lastSyncVersion', 'lastSyncAt',
+    'name', 'auth', 'presetHeaders', 'channelId', 'centralUrl', 'syncRole', 'syncMode', 'lastSyncVersion', 'lastSyncAt',
   ];
 
   fastify.patch<{ Params: { id: string }; Body: CollectionPatchBody }>(

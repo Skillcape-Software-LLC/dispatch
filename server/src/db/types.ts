@@ -56,6 +56,7 @@ export interface CollectionDocument {
   description: string;
   folders: FolderEntry[];
   auth: AuthConfig;
+  presetHeaders: HeaderEntry[];
   variables: VariableEntry[];
   createdAt: string;
   updatedAt: string;

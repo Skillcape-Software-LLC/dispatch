@@ -17,6 +17,7 @@ import { PublishModalService } from '../../core/services/publish-modal.service';
 import { SubscribeModalService } from '../../core/services/subscribe-modal.service';
 import { PullPreviewModalService } from '../../core/services/pull-preview-modal.service';
 import { ChannelInfoModalService } from '../../core/services/channel-info-modal.service';
+import { CollectionSettingsModalService } from '../../core/services/collection-settings-modal.service';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import type { Collection, SavedRequest } from '../../core/models/collection.model';
 import type { HistoryEntry } from '../../core/models/history.model';
@@ -56,6 +57,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private readonly subscribeModal = inject(SubscribeModalService);
   private readonly pullPreviewModal = inject(PullPreviewModalService);
   private readonly channelInfoModal = inject(ChannelInfoModalService);
+  private readonly collectionSettingsModal = inject(CollectionSettingsModalService);
 
   @Input() collapsed = false;
   @Output() collapseToggled = new EventEmitter<void>();
@@ -474,6 +476,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.closeMenu();
     this.channelInfoModal.open(col);
+  }
+
+  openCollectionSettings(col: Collection, event: MouseEvent): void {
+    event.stopPropagation();
+    this.closeMenu();
+    this.collectionSettingsModal.open(col.id);
   }
 
   pushCollection(col: Collection, event: MouseEvent): void {

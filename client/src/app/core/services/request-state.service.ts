@@ -18,6 +18,7 @@ export class RequestStateService {
   private readonly historyService = inject(HistoryService);
 
   readonly currentRequest = computed(() => this.tabs.activeTab().request);
+  readonly savedCollectionId = computed(() => this.tabs.activeTab().savedCollectionId);
   readonly isLoading = computed(() => this.tabs.activeTab().isLoading);
   readonly lastResponse = computed(() => this.tabs.activeTab().response);
   readonly requestError = computed(() => this.tabs.activeTab().error);

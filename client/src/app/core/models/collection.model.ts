@@ -1,11 +1,12 @@
-import type { ActiveRequestAuth } from './active-request.model';
+import type { ActiveRequestAuth, KvEntry } from './active-request.model';
 
 export interface Collection {
   id: string;
   name: string;
   description: string;
   folders: unknown[];
-  auth: unknown;
+  auth: ActiveRequestAuth;
+  presetHeaders: KvEntry[];
   variables: unknown[];
   requestCount: number;
   createdAt: string;

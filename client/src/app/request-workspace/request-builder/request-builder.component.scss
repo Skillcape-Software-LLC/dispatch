@@ -303,6 +303,33 @@
   i { font-size: 0.6875rem; }
 }
 
+/* Inherit from Collection bar */
+.inherit-bar {
+  flex-shrink: 0;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-inherit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--d-text-tertiary);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 120ms;
+
+  &:hover {
+    border-color: var(--d-amber-400);
+    color: var(--d-amber-400);
+    background: var(--d-amber-glow);
+  }
+}
+
 /* Config content */
 .config-content {
   flex: 1;

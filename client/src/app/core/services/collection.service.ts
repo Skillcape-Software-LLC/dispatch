@@ -2,11 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import type { Collection, SavedRequest } from '../models/collection.model';
+import type { ActiveRequestAuth } from '../models/active-request.model';
 
 type SaveRequestBody = Pick<SavedRequest, 'name' | 'method' | 'url' | 'headers' | 'params' | 'body' | 'auth'> & {
   id?: string;
   sortOrder?: number;
   updatedAt?: string;
+};
+
+type CollectionSettingsPatch = {
+  auth?: ActiveRequestAuth;
+  presetHeaders?: Array<{ key: string; value: string; enabled: boolean }>;
 };
 
 type CollectionSyncFields = {
@@ -34,6 +40,10 @@ export class CollectionService {
 
   notifySyncCompleted(collectionId: string): void {
     this._syncCompleted$.next(collectionId);
+  }
+
+  updateSettings(id: string, patch: CollectionSettingsPatch): Observable<Collection> {
+    return this.http.patch<Collection>(`/api/collections/${id}`, patch);
   }
 
   updateSyncFields(id: string, fields: CollectionSyncFields): Observable<Collection> {

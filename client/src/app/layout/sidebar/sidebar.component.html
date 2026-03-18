@@ -144,6 +144,10 @@
                   </button>
                   @if (openMenuId() === col.id) {
                     <div class="dropdown-menu-custom">
+                      <button class="dropdown-item-custom" (click)="openCollectionSettings(col, $event)">
+                        <i class="bi bi-gear"></i> Settings
+                      </button>
+                      <div class="dropdown-divider-custom"></div>
                       @if (isSynced(col)) {
                         @if (canPush(col)) {
                           <button class="dropdown-item-custom" (click)="pushCollection(col, $event)">

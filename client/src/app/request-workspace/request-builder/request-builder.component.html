@@ -139,6 +139,13 @@
       />
     }
     @if (activeTab() === 'headers') {
+      @if (state.savedCollectionId()) {
+        <div class="inherit-bar">
+          <button class="btn-inherit" (click)="inheritFromCollection()" title="Copy collection auth and preset headers onto this request">
+            <i class="bi bi-box-arrow-in-down"></i> Inherit from Collection
+          </button>
+        </div>
+      }
       <app-kv-editor
         [rows]="state.currentRequest().headers"
         (rowsChange)="onHeadersChange($event)"
@@ -153,6 +160,13 @@
       />
     }
     @if (activeTab() === 'auth') {
+      @if (state.savedCollectionId()) {
+        <div class="inherit-bar">
+          <button class="btn-inherit" (click)="inheritFromCollection()" title="Copy collection auth and preset headers onto this request">
+            <i class="bi bi-box-arrow-in-down"></i> Inherit from Collection
+          </button>
+        </div>
+      }
       <app-auth-editor
         [auth]="state.currentRequest().auth"
         (authChange)="onAuthChange($event)"
