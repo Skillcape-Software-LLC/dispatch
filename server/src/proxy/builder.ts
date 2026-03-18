@@ -1,5 +1,19 @@
 import type { AuthConfig, HeaderEntry, ParamEntry } from '../db/types';
 
+export function rewriteLocalhostForDocker(url: string): string {
+  if (process.env.DISPATCH_IN_DOCKER !== 'true') return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      parsed.hostname = 'host.docker.internal';
+      return parsed.toString();
+    }
+  } catch {
+    // not a valid URL — let it pass through unchanged
+  }
+  return url;
+}
+
 export function buildUrl(baseUrl: string, params: ParamEntry[]): string {
   const url = new URL(baseUrl); // throws on invalid URL
   for (const p of params) {

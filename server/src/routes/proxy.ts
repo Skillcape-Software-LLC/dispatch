@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
-import { buildUrl, buildHeaders, buildBodyContent } from '../proxy/builder';
+import { buildUrl, buildHeaders, buildBodyContent, rewriteLocalhostForDocker } from '../proxy/builder';
 import { buildVarMap, interpolateRequest } from '../proxy/interpolation';
 import { getHistory, getCollections, getEnvironments } from '../db/database';
 import { getEffectiveSettings } from '../utils/settings';
@@ -119,7 +119,7 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
       // Build URL
       let finalUrl: string;
       try {
-        finalUrl = buildUrl(url, allParams);
+        finalUrl = buildUrl(rewriteLocalhostForDocker(url), allParams);
       } catch {
         return reply.code(400).send({ error: 'invalid_url', time: Date.now() - startTime });
       }
