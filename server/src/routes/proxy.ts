@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
+import { Agent } from 'undici';
 import { buildUrl, buildHeaders, buildBodyContent, rewriteLocalhostForDocker } from '../proxy/builder';
 import { buildVarMap, interpolateRequest } from '../proxy/interpolation';
 import { getHistory, getCollections, getEnvironments } from '../db/database';
@@ -139,12 +140,16 @@ export async function proxyRoutes(fastify: FastifyInstance): Promise<void> {
 
       let fetchResponse: Response;
       try {
-        fetchResponse = await fetch(finalUrl, {
+        const fetchOptions: Record<string, unknown> = {
           method,
           headers: builtHeaders,
           body: bodyPayload,
           signal: controller.signal,
-        });
+        };
+        if (!settings.sslVerification) {
+          fetchOptions.dispatcher = new Agent({ connect: { rejectUnauthorized: false } });
+        }
+        fetchResponse = await fetch(finalUrl, fetchOptions as RequestInit);
       } catch (err: unknown) {
         clearTimeout(timeout);
         const elapsed = Date.now() - startTime;
