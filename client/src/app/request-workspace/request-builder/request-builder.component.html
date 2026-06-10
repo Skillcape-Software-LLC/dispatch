@@ -71,8 +71,7 @@
     (click)="copyAssembledUrl()"
   >
     @if (assembledUrl()) {
-      <span class="url-preview-base">{{ state.currentRequest().url }}</span><!--
-      --><span class="url-preview-qs">{{ assembledUrl()!.slice(state.currentRequest().url.length) }}</span>
+      <span class="url-preview-base">{{ assembledUrl() }}</span>
     } @else {
       <span class="url-preview-placeholder">&nbsp;</span>
     }

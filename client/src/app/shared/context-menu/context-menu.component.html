@@ -1,0 +1,16 @@
+@if (menu.state(); as state) {
+  <div class="context-menu" [style.left.px]="state.x" [style.top.px]="state.y"
+       (click)="$event.stopPropagation()" (contextmenu)="$event.preventDefault(); $event.stopPropagation()">
+    @for (item of state.items; track $index) {
+      @if (item.separator) {
+        <div class="context-menu-separator"></div>
+      } @else {
+        <button class="context-menu-item" [disabled]="item.disabled" (click)="run(item)">
+          @if (item.icon) { <i class="bi {{ item.icon }} context-menu-icon"></i> }
+          <span class="context-menu-label">{{ item.label }}</span>
+          @if (item.shortcut) { <span class="context-menu-shortcut">{{ item.shortcut }}</span> }
+        </button>
+      }
+    }
+  </div>
+}

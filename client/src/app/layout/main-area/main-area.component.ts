@@ -1,7 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, DestroyRef, signal, effect } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { RequestWorkspaceComponent } from '../../request-workspace/request-workspace.component';
 import { TabService } from '../../core/services/tab.service';
+import { ContextMenuService } from '../../shared/context-menu/context-menu.service';
+import { RequestTab } from '../../core/models/tab.model';
 import { CollectionService } from '../../core/services/collection.service';
 import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { RequestStateService } from '../../core/services/request-state.service';
@@ -16,7 +19,7 @@ export type CentralStatus = 'none' | 'connected' | 'unreachable' | 'checking';
 @Component({
   selector: 'app-main-area',
   standalone: true,
-  imports: [NgClass, RequestWorkspaceComponent],
+  imports: [NgClass, DragDropModule, RequestWorkspaceComponent],
   templateUrl: './main-area.component.html',
   styleUrl: './main-area.component.scss',
 })
@@ -28,6 +31,7 @@ export class MainAreaComponent implements OnInit, OnDestroy {
   private readonly toast = inject(ToastService);
   private readonly shortcuts = inject(KeyboardShortcutService);
   private readonly importModal = inject(ImportModalService);
+  private readonly contextMenu = inject(ContextMenuService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly settingsService = inject(SettingsService);
   private readonly centralClient = inject(CentralClientService);
@@ -147,6 +151,24 @@ export class MainAreaComponent implements OnInit, OnDestroy {
   closeTab(event: MouseEvent, id: string): void {
     event.stopPropagation();
     this.tabService.closeTab(id);
+  }
+
+  onTabDrop(event: CdkDragDrop<RequestTab[]>): void {
+    this.tabService.moveTab(event.previousIndex, event.currentIndex);
+  }
+
+  openTabMenu(event: MouseEvent, tab: RequestTab): void {
+    const tabs = this.tabService.tabs();
+    const isRightmost = tabs[tabs.length - 1]?.id === tab.id;
+    const isOnly = tabs.length === 1;
+    this.contextMenu.open(event, [
+      { label: 'Close', icon: 'bi-x', shortcut: 'Ctrl+W', action: () => this.tabService.closeTab(tab.id) },
+      { label: 'Close Others', icon: 'bi-x-square', disabled: isOnly, action: () => this.tabService.closeOthers(tab.id) },
+      { label: 'Close to the Right', icon: 'bi-arrow-bar-right', disabled: isRightmost, action: () => this.tabService.closeToRight(tab.id) },
+      { label: 'Close Unaltered', icon: 'bi-eraser', action: () => this.tabService.closeUnaltered() },
+      { separator: true, label: '' },
+      { label: 'Close All', icon: 'bi-x-octagon', action: () => this.tabService.closeAll() },
+    ]);
   }
 
   methodClass(method: string): string {

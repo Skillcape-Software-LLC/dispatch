@@ -14,7 +14,10 @@ export class KeyboardShortcutService {
   private readonly shortcuts = new Map<string, ShortcutDef>();
 
   constructor() {
-    document.addEventListener('keydown', (e) => this.onKeyDown(e));
+    // Capture phase: intercept the event at the document before it reaches
+    // widget-local handlers (e.g. Monaco's hidden <textarea>) that would
+    // otherwise consume Ctrl+S. The input guard below still gates other shortcuts.
+    document.addEventListener('keydown', (e) => this.onKeyDown(e), { capture: true });
   }
 
   register(id: string, def: ShortcutDef): void {

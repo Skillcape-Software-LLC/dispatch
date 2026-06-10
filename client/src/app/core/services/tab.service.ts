@@ -16,6 +16,7 @@ interface PersistedState {
     savedCollectionId: string | null;
     savedSnapshot: ActiveRequest | null;
     request: ActiveRequest;
+    isDirty: boolean;
   }>;
 }
 
@@ -64,6 +65,76 @@ export class TabService {
 
   activateTab(id: string): void {
     this.activeTabId.set(id);
+  }
+
+  /** Reorder a tab from one index to another (used by drag-and-drop). Persistence is automatic. */
+  moveTab(fromIndex: number, toIndex: number): void {
+    if (fromIndex === toIndex) return;
+    this.tabs.update((tabs) => {
+      const next = [...tabs];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  }
+
+  /** Close every tab except `id`, then activate it. Prompts when discarding unsaved tabs. */
+  closeOthers(id: string): void {
+    const discarded = this.tabs().filter((t) => t.id !== id);
+    if (!this.confirmDiscard(discarded)) return;
+    const keep = this.tabs().find((t) => t.id === id);
+    if (!keep) return;
+    this.tabs.set([keep]);
+    this.activeTabId.set(keep.id);
+  }
+
+  /** Replace all tabs with a single blank tab. Prompts when discarding unsaved tabs. */
+  closeAll(): void {
+    if (!this.confirmDiscard(this.tabs())) return;
+    const blank = defaultTab();
+    this.tabs.set([blank]);
+    this.activeTabId.set(blank.id);
+  }
+
+  /** Close all tabs to the right of `id`. Prompts when discarding unsaved tabs. */
+  closeToRight(id: string): void {
+    const current = this.tabs();
+    const idx = current.findIndex((t) => t.id === id);
+    if (idx === -1 || idx === current.length - 1) return;
+    const discarded = current.slice(idx + 1);
+    if (!this.confirmDiscard(discarded)) return;
+    const next = current.slice(0, idx + 1);
+    this.tabs.set(next);
+    if (!next.some((t) => t.id === this.activeTabId())) {
+      this.activeTabId.set(id);
+    }
+  }
+
+  /** Close all tabs without unsaved changes. Never discards dirty tabs, so no prompt. */
+  closeUnaltered(): void {
+    const current = this.tabs();
+    const next = current.filter((t) => t.isDirty);
+    if (next.length === current.length) return;
+    if (next.length === 0) {
+      const blank = defaultTab();
+      this.tabs.set([blank]);
+      this.activeTabId.set(blank.id);
+      return;
+    }
+    this.tabs.set(next);
+    if (!next.some((t) => t.id === this.activeTabId())) {
+      this.activeTabId.set(next[0].id);
+    }
+  }
+
+  /** Native confirm when ≥1 of the tabs about to be discarded has unsaved changes. */
+  private confirmDiscard(discarded: RequestTab[]): boolean {
+    const dirty = discarded.filter((t) => t.isDirty).length;
+    if (dirty === 0) return true;
+    return confirm(
+      `Close ${discarded.length} tab${discarded.length === 1 ? '' : 's'}? ` +
+        `${dirty} ha${dirty === 1 ? 's' : 've'} unsaved changes.`
+    );
   }
 
   updateRequest(updater: (r: ActiveRequest) => ActiveRequest): void {
@@ -160,7 +231,7 @@ export class TabService {
         response: null,
         error: null,
         isLoading: false,
-        isDirty: false,
+        isDirty: t.isDirty ?? false,
       }));
 
       const activeId = data.tabs.find((t) => t.id === data.activeTabId)
@@ -192,6 +263,7 @@ export class TabService {
         savedCollectionId: t.savedCollectionId,
         savedSnapshot: t.savedSnapshot,
         request: t.request,
+        isDirty: t.isDirty,
       })),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

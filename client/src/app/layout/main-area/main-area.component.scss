@@ -38,11 +38,35 @@
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  user-select: none;
+  outline: none;
   transition: all 120ms;
 
   &:hover { color: var(--d-text-primary); background: var(--d-surface-200); }
   &.active { color: var(--d-text-primary); background: var(--d-surface-300); border-bottom-color: rgba(255,255,255,0.25); }
   &.active.dirty { border-bottom-color: var(--d-amber-400); }
+  &:focus-visible { box-shadow: inset 0 0 0 1px var(--d-amber-400); }
+}
+
+/* CDK drag-and-drop (tab reordering) */
+.tab-item.cdk-drag-preview {
+  background: var(--d-surface-300);
+  border-radius: 0.375rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0.9;
+}
+
+.tab-item.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: var(--d-surface-200);
+}
+
+.tab-item.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.tabs-bar.cdk-drop-list-dragging .tab-item:not(.cdk-drag-placeholder) {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .tab-method {

@@ -8,6 +8,7 @@ import { EnvironmentService } from '../../core/services/environment.service';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
 import { CodegenModalService } from '../../core/services/codegen-modal.service';
 import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth, defaultActiveRequest } from '../../core/models/active-request.model';
+import { composeUrl, parseQuery, buildUrl, reconcileParamsFromQuery } from '../../core/utils/url-query.util';
 import { KvEditorComponent } from './kv-editor/kv-editor.component';
 import { BodyEditorComponent } from './body-editor/body-editor.component';
 import { AuthEditorComponent } from './auth-editor/auth-editor.component';
@@ -34,6 +35,9 @@ export class RequestBuilderComponent {
 
   activeTab = signal<ConfigTab>('params');
   showMethodMenu = signal(false);
+
+  /** Re-entrancy guard for the URL ↔ params two-way sync. */
+  private syncing = false;
 
   async copyAssembledUrl(): Promise<void> {
     const url = this.assembledUrl();
@@ -88,20 +92,20 @@ export class RequestBuilderComponent {
     return resolved !== url ? resolved : null;
   });
 
-  /** Full URL with active query params appended. Null when no active params exist. */
+  /** Final, variable-resolved URL with query params folded in (deduped). Null when there's no query to show. */
   readonly assembledUrl = computed<string | null>(() => {
     const req = this.state.currentRequest();
-    const activeParams = req.params.filter((p) => p.enabled && p.key.trim());
-    if (!activeParams.length) return null;
+    if (!req.params.some((p) => p.enabled && p.key.trim())) return null;
 
     const map = this.buildVarMap();
-    const base = this.resolveText(req.url.trim(), map);
-    // Build query string without a URL constructor so we handle partial/invalid URLs too
-    const existing = base.includes('?') ? '&' : '?';
-    const qs = activeParams
-      .map((p) => `${encodeURIComponent(this.resolveText(p.key, map))}=${encodeURIComponent(this.resolveText(p.value, map))}`)
-      .join('&');
-    return base + existing + qs;
+    const resolvedUrl = this.resolveText(req.url.trim(), map);
+    const resolvedParams = req.params.map((p) => ({
+      ...p,
+      key: this.resolveText(p.key, map),
+      value: this.resolveText(p.value, map),
+    }));
+    // composeUrl dedupes params already present in the URL query (post-sync mirror)
+    return composeUrl(resolvedUrl, resolvedParams);
   });
 
   toggleMethodMenu(): void {
@@ -118,11 +122,31 @@ export class RequestBuilderComponent {
   }
 
   onUrlChange(url: string): void {
-    this.state.updateUrl(url);
+    if (this.syncing) return;
+    this.syncing = true;
+    try {
+      // Parse the typed query into the Params table, but keep the URL string
+      // exactly as typed (no normalization mid-keystroke).
+      const { pairs } = parseQuery(url);
+      const params = reconcileParamsFromQuery(this.state.currentRequest().params, pairs);
+      this.state.updateUrlAndParams(url, params);
+    } finally {
+      this.syncing = false;
+    }
   }
 
   onParamsChange(params: KvEntry[]): void {
-    this.state.updateParams(params);
+    if (this.syncing) return;
+    this.syncing = true;
+    try {
+      // Rewrite the query portion of the URL from the (enabled) params. Safe to
+      // rewrite the input value here — focus is in the kv-editor, not the URL.
+      const { base, fragment } = parseQuery(this.state.currentRequest().url);
+      const url = buildUrl(base, fragment, params);
+      this.state.updateUrlAndParams(url, params);
+    } finally {
+      this.syncing = false;
+    }
   }
 
   onHeadersChange(headers: KvEntry[]): void {

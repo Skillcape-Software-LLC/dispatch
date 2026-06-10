@@ -1,21 +1,18 @@
 import type { ActiveRequest, KvEntry } from '../models/active-request.model';
+import { composeUrl } from './url-query.util';
 
 function resolve(text: string, vars: Record<string, string>): string {
   return text.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
 }
 
 function buildFullUrl(req: ActiveRequest, vars: Record<string, string>): string {
-  const base = resolve(req.url, vars);
-  const active = req.params.filter((p) => p.enabled && p.key.trim());
-  if (!active.length) return base;
-  const sep = base.includes('?') ? '&' : '?';
-  const qs = active
-    .map(
-      (p) =>
-        `${encodeURIComponent(resolve(p.key, vars))}=${encodeURIComponent(resolve(p.value, vars))}`
-    )
-    .join('&');
-  return base + sep + qs;
+  const resolvedParams: KvEntry[] = req.params.map((p) => ({
+    ...p,
+    key: resolve(p.key, vars),
+    value: resolve(p.value, vars),
+  }));
+  // Fold params into the URL, deduping any already present in its query (post-sync mirror).
+  return composeUrl(resolve(req.url, vars), resolvedParams);
 }
 
 function getComputedHeaders(
@@ -131,7 +128,6 @@ export function generatePython(req: ActiveRequest, vars: Record<string, string> 
   const url = buildFullUrl(req, vars);
   const headers = getComputedHeaders(req, vars);
   const body = getBodyContent(req, vars);
-  const activeParams = req.params.filter((p) => p.enabled && p.key.trim());
 
   const methodName = req.method.toLowerCase();
   // Map HEAD/OPTIONS to generic request
@@ -139,17 +135,8 @@ export function generatePython(req: ActiveRequest, vars: Record<string, string> 
     ? methodName
     : 'request';
 
+  // Query params are folded into the URL by buildFullUrl, so no separate params={}.
   const args: string[] = [`    '${url}',`];
-
-  if (activeParams.length > 0) {
-    const paramLines = activeParams
-      .map(
-        (p) =>
-          `        '${resolve(p.key, vars)}': '${resolve(p.value, vars)}',`
-      )
-      .join('\n');
-    args.push(`    params={\n${paramLines}\n    },`);
-  }
 
   if (headers.length > 0) {
     const headerLines = headers.map(([k, v]) => `        '${k}': '${v}',`).join('\n');

@@ -47,6 +47,11 @@ export class RequestStateService {
     this.tabs.updateRequest((r) => ({ ...r, params }));
   }
 
+  /** Update URL and params together in a single mutation (URL ↔ params sync). */
+  updateUrlAndParams(url: string, params: KvEntry[]): void {
+    this.tabs.updateRequest((r) => ({ ...r, url, params }));
+  }
+
   updateBody(body: ActiveRequestBody): void {
     this.tabs.updateRequest((r) => ({ ...r, body }));
   }
