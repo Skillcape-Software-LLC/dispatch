@@ -1,6 +1,6 @@
 @if (modal.isOpen()) {
-  <div class="settings-backdrop"></div>
-  <div class="settings-modal" role="dialog" aria-modal="true">
+  <div class="settings-backdrop" (click)="cancel()"></div>
+  <div class="settings-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <div class="settings-header">
       <span class="settings-title">
         @switch (activeTab()) {

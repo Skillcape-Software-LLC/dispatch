@@ -7,7 +7,8 @@
            (click)="tabService.activateTab(tab.id)"
            (keydown.enter)="tabService.activateTab(tab.id)"
            (keydown.space)="$event.preventDefault(); tabService.activateTab(tab.id)"
-           (contextmenu)="openTabMenu($event, tab)">
+           (contextmenu)="openTabMenu($event, tab)"
+           (auxclick)="onTabAuxClick($event, tab)">
         <span class="tab-method" [ngClass]="methodClass(tab.request.method)">
           {{ tab.request.method }}
         </span>
@@ -18,14 +19,14 @@
         </button>
       </div>
     }
-    <button class="tab-new" title="New tab (Ctrl+N)" (click)="tabService.openTab()">
+    <button class="tab-new" title="New tab (Ctrl+Alt+N)" (click)="tabService.openTab()">
       <i class="bi bi-plus"></i>
     </button>
   </div>
 
   <!-- Workspace -->
   <div class="workspace">
-    <app-request-workspace />
+    <app-request-workspace (saveRequested)="saveActiveRequest()" />
   </div>
 
   <!-- Status bar -->
@@ -41,7 +42,7 @@
         <kbd>Ctrl+S</kbd> Save
       </span>
       <span class="d-flex align-items-center gap-1">
-        <kbd>Ctrl+N</kbd> New
+        <kbd>Ctrl+Alt+N</kbd> New
       </span>
     </span>
   </div>

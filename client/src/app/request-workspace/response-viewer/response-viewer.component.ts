@@ -30,6 +30,8 @@ export class ResponseViewerComponent {
   private readonly toast = inject(ToastService);
 
   activeTab = signal<ResponseTab>('body');
+  wordWrap = signal<'on' | 'off'>('off');
+  showRaw = signal(false);
 
   readonly statusClass = computed(() => {
     const s = this.state.lastResponse()?.status;
@@ -68,6 +70,7 @@ export class ResponseViewerComponent {
     fontFamily: 'IBM Plex Mono, Fira Code, monospace',
     lineNumbers: 'off' as const,
     padding: { top: 8 },
+    wordWrap: this.wordWrap(),
   }));
 
   readonly responseHeaders = computed(() =>
@@ -92,5 +95,26 @@ export class ResponseViewerComponent {
   async copyBody(): Promise<void> {
     await navigator.clipboard.writeText(this.prettyBody());
     this.toast.show('Response copied to clipboard');
+  }
+
+  toggleWrap(): void {
+    this.wordWrap.set(this.wordWrap() === 'off' ? 'on' : 'off');
+  }
+
+  toggleRaw(): void {
+    this.showRaw.set(!this.showRaw());
+  }
+
+  download(): void {
+    const body = this.state.lastResponse()?.body ?? '';
+    const ct = this.state.lastResponse()?.headers['content-type'] ?? '';
+    const ext = ct.includes('json') ? 'json' : ct.includes('xml') ? 'xml' : ct.includes('html') ? 'html' : 'txt';
+    const blob = new Blob([body], { type: ct || 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `response.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

@@ -1,6 +1,6 @@
 <div class="workspace-split">
   <div class="pane request-pane" [style.flex-basis.%]="splitPercent()">
-    <app-request-builder />
+    <app-request-builder (saveRequested)="saveRequested.emit()" />
   </div>
 
   <div class="resize-handle" (mousedown)="onResizeMouseDown($event)"></div>

@@ -17,9 +17,9 @@ import { CollectionSettingsModalComponent } from '../collection-settings-modal/c
 import { ContextMenuComponent } from '../../shared/context-menu/context-menu.component';
 import { SettingsService } from '../../core/services/settings.service';
 import { SwUpdateService } from '../../core/services/sw-update.service';
+import { SidebarStateService } from '../../core/services/sidebar-state.service';
 
 const STORAGE_WIDTH = 'dispatch-sidebar-width';
-const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
 
 @Component({
   selector: 'app-shell',
@@ -40,9 +40,9 @@ const STORAGE_COLLAPSED = 'dispatch-sidebar-collapsed';
 export class ShellComponent implements OnInit {
   private readonly settingsService = inject(SettingsService);
   private readonly swUpdateService = inject(SwUpdateService);
+  readonly sidebarState = inject(SidebarStateService);
 
   readonly sidebarWidth = signal(260);
-  readonly sidebarCollapsed = signal(false);
 
   private isDragging = false;
   private dragStartX = 0;
@@ -50,15 +50,12 @@ export class ShellComponent implements OnInit {
 
   @HostBinding('style.--sidebar-width')
   get sidebarWidthCss(): string {
-    return this.sidebarCollapsed() ? '48px' : this.sidebarWidth() + 'px';
+    return this.sidebarState.isCollapsed() ? '48px' : this.sidebarWidth() + 'px';
   }
 
   ngOnInit(): void {
     const savedWidth = localStorage.getItem(STORAGE_WIDTH);
     if (savedWidth) this.sidebarWidth.set(parseInt(savedWidth, 10));
-
-    const savedCollapsed = localStorage.getItem(STORAGE_COLLAPSED);
-    if (savedCollapsed === 'true') this.sidebarCollapsed.set(true);
 
     // Load settings on boot
     this.settingsService.load().subscribe();
@@ -69,7 +66,7 @@ export class ShellComponent implements OnInit {
 
   startResize(e: MouseEvent): void {
     e.preventDefault();
-    if (this.sidebarCollapsed()) return;
+    if (this.sidebarState.isCollapsed()) return;
     this.isDragging = true;
     this.dragStartX = e.clientX;
     this.dragStartWidth = this.sidebarWidth();
@@ -97,8 +94,6 @@ export class ShellComponent implements OnInit {
   }
 
   toggleSidebar(): void {
-    const next = !this.sidebarCollapsed();
-    this.sidebarCollapsed.set(next);
-    localStorage.setItem(STORAGE_COLLAPSED, String(next));
+    this.sidebarState.toggle();
   }
 }

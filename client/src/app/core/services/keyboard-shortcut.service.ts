@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 export interface ShortcutDef {
   key: string;
   ctrl: boolean;
+  alt?: boolean;
+  shift?: boolean;
+  meta?: boolean;
   description: string;
   group?: string;
   action: () => void;
@@ -32,14 +35,26 @@ export class KeyboardShortcutService {
     return Array.from(this.shortcuts.values());
   }
 
-  private canonical(ctrl: boolean, key: string): string {
-    return `${ctrl ? 'ctrl+' : ''}${key.toLowerCase()}`;
+  private canonicalFromEvent(e: KeyboardEvent): string {
+    const ctrl = e.ctrlKey || e.metaKey;
+    const alt = e.altKey;
+    const shift = e.shiftKey;
+    const key = e.key.toLowerCase();
+    return [ctrl && 'ctrl', shift && 'shift', alt && 'alt', key].filter(Boolean).join('+');
+  }
+
+  private canonicalFromDef(def: ShortcutDef): string {
+    const ctrl = def.ctrl || (def.meta ?? false);
+    const alt = def.alt ?? false;
+    const shift = def.shift ?? false;
+    const key = def.key.toLowerCase();
+    return [ctrl && 'ctrl', shift && 'shift', alt && 'alt', key].filter(Boolean).join('+');
   }
 
   private onKeyDown(e: KeyboardEvent): void {
-    const key = this.canonical(e.ctrlKey, e.key);
+    const key = this.canonicalFromEvent(e);
     for (const def of this.shortcuts.values()) {
-      if (this.canonical(def.ctrl, def.key) !== key) continue;
+      if (this.canonicalFromDef(def) !== key) continue;
 
       if (def.ignoreInInputs !== false) {
         const tag = (e.target as Element).tagName;

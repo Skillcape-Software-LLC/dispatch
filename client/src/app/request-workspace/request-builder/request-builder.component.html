@@ -2,7 +2,7 @@
   <!-- URL bar -->
   <div class="url-bar">
     <!-- Method dropdown -->
-    <div class="method-dropdown" [class.open]="showMethodMenu()">
+    <div class="method-dropdown" [class.open]="showMethodMenu()" (click)="$event.stopPropagation()">
       <button
         class="btn-method"
         [ngClass]="methodClass(state.currentRequest().method)"
@@ -34,9 +34,14 @@
       (input)="onUrlChange($any($event.target).value)"
     />
 
+    <!-- Save button -->
+    <button class="btn-save" (click)="saveRequested.emit()" title="Save request (Ctrl+S)">
+      <i class="bi bi-floppy"></i>
+    </button>
+
     <!-- Send / Cancel button -->
     @if (state.isLoading()) {
-      <button class="btn-cancel" (click)="state.sendRequest()">
+      <button class="btn-cancel" (click)="state.cancelRequest()">
         <i class="bi bi-stop-circle"></i> Cancel
       </button>
     } @else {
@@ -46,42 +51,29 @@
     }
   </div>
 
-  <!-- Resolved URL preview (env variable interpolation) -->
-  @if (resolvedUrl()) {
-    <div class="url-resolved-preview">
-      <i class="bi bi-lightning-charge-fill resolved-icon"></i>
-      <span class="resolved-url">{{ resolvedUrl() }}</span>
-    </div>
-  }
-
-  <!-- Unresolved variable warning -->
+  <!-- URL meta strip: warning takes priority, else assembled URL with resolved vars -->
   @if (unresolvedVars().length > 0) {
     <div class="url-unresolved-warning" (click)="envEditorModal.open()" title="Open environment editor">
       <i class="bi bi-exclamation-triangle-fill"></i>
       <span>Unresolved: {{ unresolvedVarsLabel() }}</span>
       <a class="warning-fix-link">Fix →</a>
     </div>
+  } @else if (assembledUrl() || resolvedUrl()) {
+    <div
+      class="url-preview has-params"
+      [title]="(assembledUrl() ?? resolvedUrl()) ?? ''"
+      (click)="copyAssembledUrl()"
+    >
+      <i class="bi bi-lightning-charge-fill resolved-icon"></i>
+      <span class="url-preview-base">{{ assembledUrl() ?? resolvedUrl() }}</span>
+    </div>
   }
-
-  <!-- Assembled URL preview — always visible to avoid layout shift -->
-  <div
-    class="url-preview"
-    [class.has-params]="assembledUrl()"
-    [title]="assembledUrl() ?? ''"
-    (click)="copyAssembledUrl()"
-  >
-    @if (assembledUrl()) {
-      <span class="url-preview-base">{{ assembledUrl() }}</span>
-    } @else {
-      <span class="url-preview-placeholder">&nbsp;</span>
-    }
-  </div>
 
   <!-- Config nav tabs -->
   <div class="config-nav">
     <button
       class="config-tab"
-      tabindex="-1"
+      tabindex="0"
       [class.active]="activeTab() === 'params'"
       (click)="activeTab.set('params')"
     >
@@ -92,7 +84,7 @@
     </button>
     <button
       class="config-tab"
-      tabindex="-1"
+      tabindex="0"
       [class.active]="activeTab() === 'headers'"
       (click)="activeTab.set('headers')"
     >
@@ -103,7 +95,7 @@
     </button>
     <button
       class="config-tab"
-      tabindex="-1"
+      tabindex="0"
       [class.active]="activeTab() === 'body'"
       (click)="activeTab.set('body')"
     >
@@ -111,7 +103,7 @@
     </button>
     <button
       class="config-tab"
-      tabindex="-1"
+      tabindex="0"
       [class.active]="activeTab() === 'auth'"
       (click)="activeTab.set('auth')"
     >
@@ -148,6 +140,7 @@
       <app-kv-editor
         [rows]="state.currentRequest().headers"
         (rowsChange)="onHeadersChange($event)"
+        [keySuggestions]="headerSuggestions"
         placeholder="Header"
         valuePlaceholder="Value"
       />

@@ -4,6 +4,9 @@
       <button
         class="mode-pill"
         [class.active]="body().mode === mode"
+        [class.mode-soon]="isUnsupported(mode)"
+        [disabled]="isUnsupported(mode)"
+        [title]="isUnsupported(mode) ? mode + ' — coming soon' : ''"
         (click)="setMode(mode)"
       >{{ mode }}</button>
     }

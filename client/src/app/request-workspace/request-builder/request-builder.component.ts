@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, HostListener, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { RequestStateService } from '../../core/services/request-state.service';
@@ -9,6 +9,7 @@ import { EnvEditorModalService } from '../../core/services/env-editor-modal.serv
 import { CodegenModalService } from '../../core/services/codegen-modal.service';
 import { HttpMethod, KvEntry, ActiveRequestBody, ActiveRequestAuth, defaultActiveRequest } from '../../core/models/active-request.model';
 import { composeUrl, parseQuery, buildUrl, reconcileParamsFromQuery } from '../../core/utils/url-query.util';
+import { STANDARD_HEADERS } from '../../core/utils/standard-headers';
 import { KvEditorComponent } from './kv-editor/kv-editor.component';
 import { BodyEditorComponent } from './body-editor/body-editor.component';
 import { AuthEditorComponent } from './auth-editor/auth-editor.component';
@@ -32,6 +33,9 @@ export class RequestBuilderComponent {
   readonly envEditorModal = inject(EnvEditorModalService);
   private readonly codegenModal = inject(CodegenModalService);
   readonly methods = HTTP_METHODS;
+  readonly headerSuggestions = STANDARD_HEADERS;
+
+  @Output() saveRequested = new EventEmitter<void>();
 
   activeTab = signal<ConfigTab>('params');
   showMethodMenu = signal(false);
@@ -107,6 +111,16 @@ export class RequestBuilderComponent {
     // composeUrl dedupes params already present in the URL query (post-sync mirror)
     return composeUrl(resolvedUrl, resolvedParams);
   });
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.showMethodMenu()) this.showMethodMenu.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.showMethodMenu()) this.showMethodMenu.set(false);
+  }
 
   toggleMethodMenu(): void {
     this.showMethodMenu.update((v) => !v);

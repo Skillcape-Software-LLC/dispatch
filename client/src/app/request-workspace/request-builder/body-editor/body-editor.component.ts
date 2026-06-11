@@ -38,7 +38,14 @@ export class BodyEditorComponent {
     padding: { top: 8 },
   }));
 
+  private readonly unsupportedModes: BodyMode[] = ['form-data', 'binary'];
+
+  isUnsupported(mode: BodyMode): boolean {
+    return this.unsupportedModes.includes(mode);
+  }
+
   setMode(mode: BodyMode): void {
+    if (this.isUnsupported(mode)) return;
     const content = mode === 'json' && !this.body().content.trim() ? '{\n  \n}' : this.body().content;
     this.bodyChange.emit({ mode, content });
   }

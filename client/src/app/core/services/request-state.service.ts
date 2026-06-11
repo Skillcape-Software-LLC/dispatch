@@ -1,5 +1,5 @@
 import { Injectable, inject, computed } from '@angular/core';
-import { EMPTY, catchError, tap } from 'rxjs';
+import { EMPTY, Subscription, catchError, tap } from 'rxjs';
 import { ProxyService } from './proxy.service';
 import { TabService } from './tab.service';
 import { HistoryService } from './history.service';
@@ -68,7 +68,7 @@ export class RequestStateService {
     this.tabs.setLoading(true);
     this.tabs.clearResponse();
 
-    this.proxyService
+    this.requestSub = this.proxyService
       .send(req, this.tabs.activeTab().savedCollectionId ?? undefined)
       .pipe(
         tap((result) => {
@@ -84,4 +84,13 @@ export class RequestStateService {
       )
       .subscribe();
   }
+
+  cancelRequest(): void {
+    this.requestSub?.unsubscribe();
+    this.requestSub = undefined;
+    this.tabs.updateRequest((r) => ({ ...r, isLoading: false }));
+    this.tabs.setLoading(false);
+  }
+
+  private requestSub?: Subscription;
 }

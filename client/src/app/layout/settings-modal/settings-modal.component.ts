@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, OnInit } from '@angular/core';
+import { Component, inject, signal, effect, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SettingsModalService, type SettingsTab } from '../../core/services/settings-modal.service';
 import { SettingsService, type AppSettings } from '../../core/services/settings.service';
@@ -116,6 +116,11 @@ export class SettingsModalComponent implements OnInit {
         this.toast.show('Failed to save settings', 'error');
       },
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.cancel();
   }
 
   cancel(): void {

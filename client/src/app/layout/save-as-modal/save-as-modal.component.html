@@ -1,9 +1,9 @@
 @if (modal.isOpen()) {
   <!-- Backdrop -->
-  <div class="modal-backdrop-custom"></div>
+  <div class="modal-backdrop-custom" (click)="close()"></div>
 
   <!-- Dialog -->
-  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle" (click)="$event.stopPropagation()">
     <div class="modal-header-custom">
       <h6 class="modal-title-custom" id="saveModalTitle">
         <i class="bi bi-floppy me-2"></i>Save Request
@@ -22,6 +22,7 @@
           type="text"
           [ngModel]="requestName()"
           (ngModelChange)="requestName.set($event)"
+          (keydown.enter)="save()"
           placeholder="e.g. Get Users"
           autofocus>
       </div>

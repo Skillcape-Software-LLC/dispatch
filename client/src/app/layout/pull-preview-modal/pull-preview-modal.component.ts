@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, HostListener } from '@angular/core';
 import { PullPreviewModalService } from '../../core/services/pull-preview-modal.service';
 import { SyncService } from '../../core/services/sync.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -71,6 +71,11 @@ export class PullPreviewModalComponent {
         this.toast.show('Pull failed', 'error');
       }
     );
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

@@ -13,6 +13,7 @@ import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.s
 import { ImportModalService } from '../../core/services/import-modal.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { CentralClientService } from '../../core/services/central-client.service';
+import { SidebarStateService } from '../../core/services/sidebar-state.service';
 
 export type CentralStatus = 'none' | 'connected' | 'unreachable' | 'checking';
 
@@ -35,6 +36,7 @@ export class MainAreaComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly settingsService = inject(SettingsService);
   private readonly centralClient = inject(CentralClientService);
+  private readonly sidebarState = inject(SidebarStateService);
 
   readonly centralStatus = signal<CentralStatus>('none');
   readonly centralLabel = signal('No Central configured');
@@ -61,16 +63,20 @@ export class MainAreaComponent implements OnInit, OnDestroy {
     this.shortcuts.register('new-tab', {
       key: 'n',
       ctrl: true,
+      alt: true,
       description: 'New tab',
       group: 'TABS',
+      ignoreInInputs: false,
       action: () => this.tabService.openTab(),
     });
 
     this.shortcuts.register('close-tab', {
       key: 'w',
       ctrl: true,
+      alt: true,
       description: 'Close tab',
       group: 'TABS',
+      ignoreInInputs: false,
       action: () => this.tabService.closeTab(this.tabService.activeTabId()),
     });
 
@@ -79,7 +85,48 @@ export class MainAreaComponent implements OnInit, OnDestroy {
       ctrl: true,
       description: 'Import',
       group: 'GENERAL',
+      ignoreInInputs: false,
       action: () => this.importModal.open(),
+    });
+
+    this.shortcuts.register('focus-url', {
+      key: 'l',
+      ctrl: true,
+      description: 'Focus URL bar',
+      group: 'NAVIGATION',
+      ignoreInInputs: false,
+      action: () => {
+        const urlInput = document.querySelector<HTMLElement>('.url-input');
+        if (urlInput) { urlInput.focus(); (urlInput as HTMLInputElement).select?.(); }
+      },
+    });
+
+    this.shortcuts.register('toggle-sidebar', {
+      key: 'b',
+      ctrl: true,
+      description: 'Toggle sidebar',
+      group: 'NAVIGATION',
+      ignoreInInputs: false,
+      action: () => this.toggleSidebar(),
+    });
+
+    this.shortcuts.register('next-tab', {
+      key: 'tab',
+      ctrl: true,
+      description: 'Next tab',
+      group: 'TABS',
+      ignoreInInputs: false,
+      action: () => this.tabService.activateNext(),
+    });
+
+    this.shortcuts.register('prev-tab', {
+      key: 'tab',
+      ctrl: true,
+      shift: true,
+      description: 'Previous tab',
+      group: 'TABS',
+      ignoreInInputs: false,
+      action: () => this.tabService.activatePrev(),
     });
 
     this.destroyRef.onDestroy(() => {
@@ -87,6 +134,10 @@ export class MainAreaComponent implements OnInit, OnDestroy {
       this.shortcuts.unregister('new-tab');
       this.shortcuts.unregister('close-tab');
       this.shortcuts.unregister('import');
+      this.shortcuts.unregister('focus-url');
+      this.shortcuts.unregister('toggle-sidebar');
+      this.shortcuts.unregister('next-tab');
+      this.shortcuts.unregister('prev-tab');
     });
 
     // Poll Central status every 5 minutes
@@ -153,6 +204,13 @@ export class MainAreaComponent implements OnInit, OnDestroy {
     this.tabService.closeTab(id);
   }
 
+  onTabAuxClick(event: MouseEvent, tab: RequestTab): void {
+    if (event.button === 1) {
+      event.preventDefault();
+      this.tabService.closeTab(tab.id);
+    }
+  }
+
   onTabDrop(event: CdkDragDrop<RequestTab[]>): void {
     this.tabService.moveTab(event.previousIndex, event.currentIndex);
   }
@@ -162,13 +220,17 @@ export class MainAreaComponent implements OnInit, OnDestroy {
     const isRightmost = tabs[tabs.length - 1]?.id === tab.id;
     const isOnly = tabs.length === 1;
     this.contextMenu.open(event, [
-      { label: 'Close', icon: 'bi-x', shortcut: 'Ctrl+W', action: () => this.tabService.closeTab(tab.id) },
+      { label: 'Close', icon: 'bi-x', shortcut: 'Ctrl+Alt+W', action: () => this.tabService.closeTab(tab.id) },
       { label: 'Close Others', icon: 'bi-x-square', disabled: isOnly, action: () => this.tabService.closeOthers(tab.id) },
       { label: 'Close to the Right', icon: 'bi-arrow-bar-right', disabled: isRightmost, action: () => this.tabService.closeToRight(tab.id) },
       { label: 'Close Unaltered', icon: 'bi-eraser', action: () => this.tabService.closeUnaltered() },
       { separator: true, label: '' },
       { label: 'Close All', icon: 'bi-x-octagon', action: () => this.tabService.closeAll() },
     ]);
+  }
+
+  private toggleSidebar(): void {
+    this.sidebarState.toggle();
   }
 
   methodClass(method: string): string {

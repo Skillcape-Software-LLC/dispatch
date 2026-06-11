@@ -1,9 +1,9 @@
 @if (modal.isOpen()) {
   <!-- Backdrop -->
-  <div class="modal-backdrop-custom"></div>
+  <div class="modal-backdrop-custom" (click)="close()"></div>
 
   <!-- Dialog -->
-  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="codegenModalTitle">
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="codegenModalTitle" (click)="$event.stopPropagation()">
     <div class="modal-header-custom">
       <h6 class="modal-title-custom" id="codegenModalTitle">
         <i class="bi bi-code-slash me-2"></i>Generate Code

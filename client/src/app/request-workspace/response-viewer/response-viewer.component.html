@@ -50,19 +50,42 @@
         </button>
       </div>
 
-      <button class="btn-copy" (click)="copyBody()">
-        <i class="bi bi-clipboard"></i> Copy
-      </button>
+      <div class="response-actions">
+        @if (activeTab() === 'body') {
+          <button
+            class="btn-tool"
+            [class.active]="wordWrap() === 'on'"
+            title="Toggle word wrap"
+            (click)="toggleWrap()"
+          ><i class="bi bi-text-wrap"></i></button>
+          <button
+            class="btn-tool"
+            [class.active]="showRaw()"
+            title="Toggle raw view"
+            (click)="toggleRaw()"
+          ><i class="bi bi-code"></i></button>
+          <button class="btn-tool" title="Download response" (click)="download()">
+            <i class="bi bi-download"></i>
+          </button>
+        }
+        <button class="btn-copy" (click)="copyBody()">
+          <i class="bi bi-clipboard"></i> Copy
+        </button>
+      </div>
     </div>
 
     <div class="response-content">
       @if (activeTab() === 'body') {
         <div class="response-body-area">
-          <ngx-monaco-editor
-            class="monaco-host"
-            [options]="editorOptions()"
-            [ngModel]="prettyBody()"
-          />
+          @if (showRaw()) {
+            <pre class="raw-body">{{ state.lastResponse()!.body }}</pre>
+          } @else {
+            <ngx-monaco-editor
+              class="monaco-host"
+              [options]="editorOptions()"
+              [ngModel]="prettyBody()"
+            />
+          }
         </div>
       }
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, HostListener } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ChannelInfoModalService } from '../../core/services/channel-info-modal.service';
 import { CentralClientService, type ChannelInfo } from '../../core/services/central-client.service';
@@ -120,6 +120,11 @@ export class ChannelInfoModalComponent {
         this.toast.show('Failed to unlink channel', 'error');
       },
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

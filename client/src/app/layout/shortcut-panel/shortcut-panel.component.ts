@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef, HostListener } from '@angular/core';
 import { KeyboardShortcutService, type ShortcutDef } from '../../core/services/keyboard-shortcut.service';
 
 @Component({
@@ -28,6 +28,11 @@ export class ShortcutPanelComponent implements OnInit {
 
   toggle(): void {
     this.isOpen.update(v => !v);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.isOpen()) this.close();
   }
 
   close(): void {
@@ -65,7 +70,10 @@ export class ShortcutPanelComponent implements OnInit {
   formatKey(def: ShortcutDef): string[] {
     const parts: string[] = [];
     if (def.ctrl) parts.push('Ctrl');
-    parts.push(def.key === '/' ? '/' : def.key.toUpperCase());
+    if (def.shift) parts.push('Shift');
+    if (def.alt) parts.push('Alt');
+    const k = def.key;
+    parts.push(k === '/' ? '/' : k.length === 1 ? k.toUpperCase() : k.charAt(0).toUpperCase() + k.slice(1));
     return parts;
   }
 }

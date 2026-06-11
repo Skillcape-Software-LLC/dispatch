@@ -2,7 +2,7 @@
   <app-top-bar />
   <div class="app-body">
     <app-sidebar
-      [collapsed]="sidebarCollapsed()"
+      [collapsed]="sidebarState.isCollapsed()"
       (collapseToggled)="toggleSidebar()" />
     <div class="resize-handle" (mousedown)="startResize($event)"></div>
     <app-main-area />

@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, HostListener } from '@angular/core';
 import { CollectionSettingsModalService } from '../../core/services/collection-settings-modal.service';
 import { CollectionService } from '../../core/services/collection.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -70,6 +70,11 @@ export class CollectionSettingsModalComponent {
         this.saving.set(false);
       },
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PublishModalService } from '../../core/services/publish-modal.service';
 import { CollectionService } from '../../core/services/collection.service';
@@ -131,6 +131,11 @@ export class PublishModalComponent {
       this.copied.set(true);
       setTimeout(() => this.copied.set(false), 1500);
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

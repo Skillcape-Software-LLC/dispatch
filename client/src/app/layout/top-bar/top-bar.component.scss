@@ -29,6 +29,47 @@
   gap: 0.25rem;
 }
 
+.env-selector-group {
+  display: flex;
+  align-items: center;
+}
+
+.env-select {
+  background: var(--d-surface-300);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: none;
+  border-radius: 0.375rem 0 0 0.375rem;
+  color: var(--d-text-secondary);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  height: 28px;
+  cursor: pointer;
+  max-width: 140px;
+  transition: border-color 120ms;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(245, 166, 35, 0.4);
+  }
+
+  option { background: var(--d-surface-300); }
+}
+
+.btn-icon-env {
+  width: 26px;
+  height: 28px;
+  border-radius: 0 0.375rem 0.375rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.6875rem;
+}
+
+.btn-icon-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.10);
+  margin: 0 0.125rem;
+}
+
 .btn-icon {
   display: flex;
   align-items: center;

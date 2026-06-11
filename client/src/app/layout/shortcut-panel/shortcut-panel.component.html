@@ -1,6 +1,6 @@
 @if (isOpen()) {
-  <div class="shortcut-backdrop"></div>
-  <div class="shortcut-panel" role="dialog" aria-modal="true">
+  <div class="shortcut-backdrop" (click)="close()"></div>
+  <div class="shortcut-panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <div class="panel-header">
       <span class="panel-title">KEYBOARD SHORTCUTS</span>
       <button class="panel-close" (click)="close()" title="Close (Esc)">

@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SubscribeModalService } from '../../core/services/subscribe-modal.service';
 import { CollectionService } from '../../core/services/collection.service';
@@ -87,6 +87,11 @@ export class SubscribeModalComponent {
         this.error.set(err?.error?.message ?? 'Subscription failed.');
       }
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

@@ -47,6 +47,9 @@ export class TabService {
 
   closeTab(id: string): void {
     const current = this.tabs();
+    const tab = current.find((t) => t.id === id);
+    if (tab && !this.confirmDiscard([tab])) return;
+
     if (current.length === 1) {
       const blank = defaultTab();
       this.tabs.set([blank]);
@@ -65,6 +68,20 @@ export class TabService {
 
   activateTab(id: string): void {
     this.activeTabId.set(id);
+  }
+
+  activateNext(): void {
+    const tabs = this.tabs();
+    const idx = tabs.findIndex((t) => t.id === this.activeTabId());
+    const next = tabs[(idx + 1) % tabs.length];
+    this.activeTabId.set(next.id);
+  }
+
+  activatePrev(): void {
+    const tabs = this.tabs();
+    const idx = tabs.findIndex((t) => t.id === this.activeTabId());
+    const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
+    this.activeTabId.set(prev.id);
   }
 
   /** Reorder a tab from one index to another (used by drag-and-drop). Persistence is automatic. */

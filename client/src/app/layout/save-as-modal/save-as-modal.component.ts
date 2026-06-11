@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { CollectionService } from '../../core/services/collection.service';
@@ -108,6 +108,11 @@ export class SaveAsModalComponent {
       if (!colId) { this.saving.set(false); return; }
       doSave(colId);
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { CodegenModalService } from '../../core/services/codegen-modal.service';
 import { RequestStateService } from '../../core/services/request-state.service';
 import { EnvironmentService } from '../../core/services/environment.service';
@@ -39,6 +39,11 @@ export class CodegenModalComponent {
   async copyCode(): Promise<void> {
     await navigator.clipboard.writeText(this.generatedCode());
     this.toast.show('Copied to clipboard');
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

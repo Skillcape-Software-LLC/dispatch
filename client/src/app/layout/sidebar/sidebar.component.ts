@@ -9,8 +9,6 @@ import { HistoryService } from '../../core/services/history.service';
 import { SaveAsModalService } from '../../core/services/save-as-modal.service';
 import { ImportExportService } from '../../core/services/import-export.service';
 import { ImportModalService } from '../../core/services/import-modal.service';
-import { SettingsModalService } from '../../core/services/settings-modal.service';
-import { EnvironmentService } from '../../core/services/environment.service';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
 import { SyncService } from '../../core/services/sync.service';
 import { PublishModalService } from '../../core/services/publish-modal.service';
@@ -21,9 +19,9 @@ import { CollectionSettingsModalService } from '../../core/services/collection-s
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import type { Collection, SavedRequest } from '../../core/models/collection.model';
 import type { HistoryEntry } from '../../core/models/history.model';
-import type { Environment } from '../../core/models/environment.model';
 import { defaultActiveRequest, type KvEntry, type ActiveRequestBody } from '../../core/models/active-request.model';
 import type { ActiveRequestAuth } from '../../core/models/active-request.model';
+import { SidebarStateService } from '../../core/services/sidebar-state.service';
 
 type DateGroup = 'Today' | 'Yesterday' | 'Last 7 Days' | 'Older';
 
@@ -44,13 +42,12 @@ const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'
 export class SidebarComponent implements OnInit, OnDestroy {
   private readonly collectionService = inject(CollectionService);
   readonly tabs = inject(TabService);
+  private readonly sidebarState = inject(SidebarStateService);
   private readonly toast = inject(ToastService);
   private readonly historyService = inject(HistoryService);
   private readonly saveAsModal = inject(SaveAsModalService);
   private readonly importExportService = inject(ImportExportService);
   private readonly importModal = inject(ImportModalService);
-  readonly settingsModal = inject(SettingsModalService);
-  readonly envService = inject(EnvironmentService);
   private readonly envEditorModal = inject(EnvEditorModalService);
   readonly syncService = inject(SyncService);
   private readonly publishModal = inject(PublishModalService);
@@ -63,10 +60,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   @Output() collapseToggled = new EventEmitter<void>();
 
   activeTab: 'collections' | 'history' = 'collections';
-
-  // Environment selector
-  readonly environments = signal<Environment[]>([]);
-  readonly selectedEnvId = signal<string>('');
 
   // Collections
   readonly collections = signal<Collection[]>([]);
@@ -93,10 +86,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   };
 
+  // Collections search
+  readonly collectionSearchQuery = signal('');
+  readonly filteredCollections = computed(() => {
+    const q = this.collectionSearchQuery().toLowerCase().trim();
+    if (!q) return this.collections();
+    return this.collections().filter((c) => c.name.toLowerCase().includes(q));
+  });
+
   // History
   readonly historyEntries = signal<HistoryEntry[]>([]);
   readonly historyLoading = signal(false);
   readonly historySearchQuery = signal('');
+  readonly confirmingClearHistory = signal(false);
 
   readonly filteredHistory = computed(() => {
     const q = this.historySearchQuery().toLowerCase().trim();
@@ -149,7 +151,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     document.addEventListener('click', this.documentClickListener);
     this.loadCollections();
-    this.loadEnvironments();
     this.historyRefreshSub = this.historyService.newEntry$.subscribe(() => {
       if (this.activeTab === 'history') {
         this.loadHistory();
@@ -187,34 +188,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   setTab(tab: 'collections' | 'history'): void {
     this.activeTab = tab;
+    this.sidebarState.expand();
     if (tab === 'history') {
       this.loadHistory();
-    }
-  }
-
-  // --- Environments ---
-
-  private loadEnvironments(): void {
-    this.envService.getEnvironments().subscribe((envs) => {
-      this.environments.set(envs);
-      const savedId = this.envService.activeEnvironmentId();
-      if (savedId && envs.some((e) => e.id === savedId)) {
-        this.selectedEnvId.set(savedId);
-        const env = envs.find((e) => e.id === savedId);
-        if (env) {
-          this.envService.setActiveEnvironment(savedId, env.variables);
-        }
-      }
-    });
-  }
-
-  onEnvChange(id: string): void {
-    this.selectedEnvId.set(id);
-    if (!id) {
-      this.envService.setActiveEnvironment(null, []);
-    } else {
-      const env = this.environments().find((e) => e.id === id);
-      this.envService.setActiveEnvironment(id, env?.variables ?? []);
     }
   }
 
@@ -295,6 +271,54 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  addRequestToCollection(collectionId: string): void {
+    this.closeMenu();
+    const fresh = defaultActiveRequest();
+    this.collectionService.saveRequest(collectionId, {
+      name: 'New Request',
+      method: 'GET',
+      url: '',
+      headers: [],
+      params: [],
+      body: fresh.body,
+      auth: fresh.auth,
+    }).subscribe({
+      next: (saved) => {
+        this.loadRequests(collectionId);
+        this.tabs.openTab({
+          request: { ...fresh, method: 'GET' as any, url: '' },
+          savedRequestId: saved.id,
+          savedCollectionId: collectionId,
+          savedSnapshot: fresh,
+          isDirty: false,
+          label: saved.name,
+        });
+        this.collectionService.notifyRequestUpdated(collectionId);
+      },
+      error: () => this.toast.show('Failed to add request', 'error'),
+    });
+  }
+
+  duplicateRequest(req: SavedRequest): void {
+    this.closeMenu();
+    this.collectionService.saveRequest(req.collectionId, {
+      name: req.name + ' Copy',
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      params: req.params,
+      body: req.body,
+      auth: req.auth,
+    }).subscribe({
+      next: () => {
+        this.loadRequests(req.collectionId);
+        this.collectionService.notifyRequestUpdated(req.collectionId);
+        this.toast.show(`"${req.name}" duplicated`);
+      },
+      error: () => this.toast.show('Failed to duplicate request', 'error'),
+    });
+  }
+
   startCreate(): void {
     this.newCollectionName = '';
     this.creatingCollection.set(true);
@@ -356,6 +380,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   deleteCollection(id: string, event: MouseEvent): void {
     event.stopPropagation();
+    const deleted = this.collections().find((c) => c.id === id);
     this.collectionService.deleteCollection(id).subscribe({
       next: () => {
         this.collections.update((cols) => cols.filter((c) => c.id !== id));
@@ -366,6 +391,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
         set.delete(id);
         this.expandedIds.set(set);
         this.confirmingDeleteCollectionId.set(null);
+        if (deleted) {
+          this.toast.show(`"${deleted.name}" deleted`, 'success', {
+            label: 'Undo',
+            fn: () => this.collectionService.createCollection(deleted.name).subscribe({
+              next: (col) => this.collections.update((cols) => [...cols, col]),
+              error: () => this.toast.show('Could not restore collection', 'error'),
+            }),
+          });
+        }
       },
       error: () => this.toast.show('Failed to delete collection', 'error'),
     });
@@ -525,9 +559,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   openHistoryEntry(entry: HistoryEntry): void {
     const SKIP_HEADERS = new Set(['authorization', 'content-type', 'host', 'content-length']);
+    const hadAuth = Object.keys(entry.request.headers).some((k) => k.toLowerCase() === 'authorization');
     const headers: KvEntry[] = Object.entries(entry.request.headers)
       .filter(([k]) => !SKIP_HEADERS.has(k.toLowerCase()))
       .map(([key, value]) => ({ id: crypto.randomUUID(), key, value, enabled: true }));
+    if (hadAuth) {
+      this.toast.show('Auth header was not restored from history', 'info');
+    }
 
     const bodyContent = entry.request.body ?? '';
     let bodyMode: ActiveRequestBody['mode'] = 'none';
@@ -572,7 +610,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   }
 
-  clearHistory(): void {
+  promptClearHistory(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingClearHistory.set(true);
+  }
+
+  confirmClearHistory(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingClearHistory.set(false);
     this.historyService.clearAll().subscribe({
       next: () => {
         this.historyEntries.set([]);
@@ -580,6 +625,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
       },
       error: () => this.toast.show('Failed to clear history', 'error'),
     });
+  }
+
+  cancelClearHistory(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmingClearHistory.set(false);
   }
 
   historyDisplayUrl(url: string): string {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, DestroyRef, ElementRef } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef, ElementRef, Output, EventEmitter } from '@angular/core';
 import { RequestBuilderComponent } from './request-builder/request-builder.component';
 import { ResponseViewerComponent } from './response-viewer/response-viewer.component';
 import { RequestStateService } from '../core/services/request-state.service';
@@ -18,6 +18,8 @@ export class RequestWorkspaceComponent implements OnInit {
   private readonly el = inject(ElementRef);
   private readonly shortcuts = inject(KeyboardShortcutService);
   private readonly destroyRef = inject(DestroyRef);
+
+  @Output() saveRequested = new EventEmitter<void>();
 
   private isDragging = false;
   readonly splitPercent = signal(50);

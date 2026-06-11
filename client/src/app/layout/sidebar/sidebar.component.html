@@ -23,20 +23,8 @@
   } @else {
     <!-- Expanded full view -->
 
-    <!-- Header — Environment selector -->
-    <div class="sidebar-header d-flex align-items-center gap-2 px-2 py-2">
-      <div class="env-selector">
-        <select
-          class="env-select"
-          [ngModel]="selectedEnvId()"
-          (ngModelChange)="onEnvChange($event)"
-        >
-          <option value="">No Environment</option>
-          @for (env of environments(); track env.id) {
-            <option [value]="env.id">{{ env.name }}</option>
-          }
-        </select>
-      </div>
+    <!-- Header -->
+    <div class="sidebar-header d-flex align-items-center px-2 py-2">
       <button class="icon-btn ms-auto" (click)="collapseToggled.emit()" title="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
       </button>
@@ -58,7 +46,13 @@
     <div class="sidebar-search position-relative px-2 py-2">
       <i class="bi bi-search search-icon"></i>
       @if (activeTab === 'collections') {
-        <input type="text" class="form-control form-control-sm" placeholder="Search collections...">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Search collections..."
+          [value]="collectionSearchQuery()"
+          (input)="collectionSearchQuery.set($any($event.target).value)"
+        >
       } @else {
         <input
           type="text"
@@ -96,7 +90,7 @@
 
         <!-- Collections list -->
         <div class="list-group list-group-flush tree-list">
-          @for (col of collections(); track col.id) {
+          @for (col of filteredCollections(); track col.id) {
 
             <!-- Collection row -->
             <div class="list-group-item collection-row"
@@ -144,6 +138,10 @@
                   </button>
                   @if (openMenuId() === col.id) {
                     <div class="dropdown-menu-custom">
+                      <button class="dropdown-item-custom" (click)="addRequestToCollection(col.id); $event.stopPropagation()">
+                        <i class="bi bi-plus-circle"></i> Add Request
+                      </button>
+                      <div class="dropdown-divider-custom"></div>
                       <button class="dropdown-item-custom" (click)="openCollectionSettings(col, $event)">
                         <i class="bi bi-gear"></i> Settings
                       </button>
@@ -225,6 +223,10 @@
                           <button class="dropdown-item-custom" (click)="startRenameRequest(req, $event)">
                             <i class="bi bi-pencil"></i> Rename
                           </button>
+                          <button class="dropdown-item-custom" (click)="duplicateRequest(req); $event.stopPropagation()">
+                            <i class="bi bi-copy"></i> Duplicate
+                          </button>
+                          <div class="dropdown-divider-custom"></div>
                           <button class="dropdown-item-custom danger" (click)="promptDeleteRequest(req.id, $event)">
                             <i class="bi bi-trash"></i> Delete
                           </button>
@@ -261,9 +263,21 @@
         <div class="section-header d-flex align-items-center px-1 py-1">
           <span class="section-label">History</span>
           @if (historyEntries().length > 0) {
-            <button class="icon-btn danger ms-auto" (click)="clearHistory()" title="Clear all history">
-              <i class="bi bi-trash3"></i>
-            </button>
+            @if (confirmingClearHistory()) {
+              <div class="delete-confirm ms-auto">
+                <span class="delete-confirm-label">Clear all?</span>
+                <button class="icon-btn danger" (click)="confirmClearHistory($event)" title="Confirm clear">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="icon-btn" (click)="cancelClearHistory($event)" title="Cancel">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            } @else {
+              <button class="icon-btn danger ms-auto" (click)="promptClearHistory($event)" title="Clear all history">
+                <i class="bi bi-trash3"></i>
+              </button>
+            }
           }
         </div>
 

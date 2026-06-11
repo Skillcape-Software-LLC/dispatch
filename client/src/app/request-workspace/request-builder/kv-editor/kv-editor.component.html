@@ -12,17 +12,39 @@
         <input
           type="checkbox"
           class="col-check form-check-input"
+          tabindex="-1"
           [checked]="row.enabled"
           (change)="toggleRow(row.id)"
         />
-        <input
-          type="text"
-          class="col-key kv-input"
-          [class.has-var]="row.key.includes('{{')"
-          [placeholder]="placeholder()"
-          [value]="row.key"
-          (input)="updateKey(row.id, $any($event.target).value)"
-        />
+        <div class="col-key kv-key-wrap">
+          <input
+            type="text"
+            class="kv-input"
+            autocomplete="off"
+            [class.has-var]="row.key.includes('{{')"
+            [placeholder]="placeholder()"
+            [value]="row.key"
+            (input)="onKeyInput(row.id, $any($event.target).value)"
+            (focus)="onKeyFocus(row.id, row.key)"
+            (blur)="onKeyBlur()"
+            (keydown)="onKeyDown(row.id, $event)"
+          />
+          @if (showSuggestions(row.id)) {
+            <div class="kv-suggest">
+              @for (s of filteredSuggestions(); track s; let i = $index) {
+                <button
+                  type="button"
+                  class="kv-suggest-item"
+                  [class.active]="i === highlightIndex()"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="selectSuggestion(row.id, s)"
+                >
+                  {{ s }}
+                </button>
+              }
+            </div>
+          }
+        </div>
         <input
           type="text"
           class="col-val kv-input"
@@ -31,7 +53,7 @@
           [value]="row.value"
           (input)="updateValue(row.id, $any($event.target).value)"
         />
-        <button class="col-del btn-del" (click)="removeRow(row.id)" title="Remove">
+        <button class="col-del btn-del" tabindex="-1" (click)="removeRow(row.id)" title="Remove">
           <i class="bi bi-x"></i>
         </button>
       </div>

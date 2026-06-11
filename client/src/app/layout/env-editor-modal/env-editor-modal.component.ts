@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EnvEditorModalService } from '../../core/services/env-editor-modal.service';
 import { EnvironmentService } from '../../core/services/environment.service';
@@ -233,6 +233,11 @@ export class EnvEditorModalComponent {
       });
     };
     reader.readAsText(file);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modal.isOpen()) this.close();
   }
 
   close(): void {

@@ -3,7 +3,7 @@
   <div class="modal-backdrop-custom" (click)="close()"></div>
 
   <!-- Dialog -->
-  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="colSettingsTitle">
+  <div class="modal-dialog-custom" role="dialog" aria-modal="true" aria-labelledby="colSettingsTitle" (click)="$event.stopPropagation()">
     <div class="modal-header-custom">
       <h6 class="modal-title-custom" id="colSettingsTitle">
         <i class="bi bi-gear me-2"></i>Collection Settings
